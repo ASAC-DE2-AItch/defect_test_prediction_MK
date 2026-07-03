@@ -1,8 +1,10 @@
 # modeling_v5.ipynb — 노트북 안내서
 
 > Row-level 예측(step 단위 → WF 평균) + 데이터 재탐색 반영(C23 추가) v5 파이프라인
+> **결과: Valid RMSE 61.38 (역대 최선) / Test 60.52.** 결과·오차분석은 `modeling_v5_REPORT.md` 참조
+> 이전 버전: `modeling_baseline.ipynb` (v1), `modeling_v2/` (v2), `modeling_v3/` (v3), `modeling_v4/` (v4)
 >
-> 이전 버전: `modeling_baseline.ipynb` (v1), `modeling_v2/` (v2), `modeling_v3/` (v3, 최선), `modeling_v4/` (v4)
+> 이 문서는 **노트북 사용법**입니다. 실험 결과·해석은 같은 폴더의 REPORT를 보세요.
 
 ---
 

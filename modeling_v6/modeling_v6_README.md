@@ -1,6 +1,9 @@
 # modeling_v6.ipynb — 노트북 안내서
 
 > 시퀀스 모델(1D-CNN, step 시퀀스 직접 학습). 이전: v3(최선 tabular), v5(row-level)
+> **결과: Test RMSE 66.04 (딥러닝 실패, 방향 종료).** 결과·오차분석은 `modeling_v6_REPORT.md` 참조
+>
+> 이 문서는 **노트북 사용법**입니다. 실험 결과·해석은 같은 폴더의 REPORT를 보세요.
 
 ---
 

@@ -1,8 +1,10 @@
 # modeling_v2.ipynb — 노트북 안내서
 
 > Step별 피처 엔지니어링을 추가한 v2 모델링 파이프라인
+> **결과: Test RMSE 61.25 (baseline 61.15 대비 소폭 악화)** — 결과 해석은 `modeling_v2_REPORT.md` 참조
+> 이전 버전: `modeling_baseline.ipynb` (v1)
 >
-> 이전 버전: `modeling_pipeline.ipynb` (v1)
+> 이 문서는 **노트북 사용법**입니다. 실험 결과·해석은 같은 폴더의 REPORT를 보세요.
 
 ---
 
