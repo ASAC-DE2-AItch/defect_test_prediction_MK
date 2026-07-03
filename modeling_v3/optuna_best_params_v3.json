@@ -1,0 +1,18 @@
+{
+  "best_cv_rmse": 62.20107676697408,
+  "best_params": {
+    "learning_rate": 0.005759888493722243,
+    "num_leaves": 189,
+    "max_depth": 10,
+    "min_child_samples": 14,
+    "subsample": 0.9668278565281413,
+    "colsample_bytree": 0.6553280106987178,
+    "reg_alpha": 4.25633536843975,
+    "reg_lambda": 0.003098395985992314,
+    "min_split_gain": 0.7576030443171627,
+    "subsample_freq": 6
+  },
+  "valid_rmse": 62.314029042197475,
+  "test_rmse": 60.51126658190436,
+  "n_trials": 100
+}
