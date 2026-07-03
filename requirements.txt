@@ -7,3 +7,4 @@ matplotlib
 seaborn
 jupyter
 optuna
+torch  # v6 시퀀스 모델(1D-CNN/LSTM)용. GPU 있으면 CUDA 빌드 권장
