@@ -1,0 +1,8 @@
+{
+  "valid_rmse": 61.384,
+  "n_valid_wf": 1990,
+  "n_test_wf": 1990,
+  "cov90": 0.904,
+  "width90": 203.1,
+  "sigma_error_corr": 0.34
+}

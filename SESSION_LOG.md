@@ -1,6 +1,6 @@
 # 세션 로그 — SK Hynix Defect Test Prediction
 
-> 최종 업데이트: 2026-07-03 (세션 3 종료 시점)
+> 최종 업데이트: 2026-07-07 (세션 4 — 신뢰도 측정 + 환경 정비)
 
 ---
 
@@ -99,6 +99,21 @@
 - **설계**: row(step) 단위 C65 직접 예측 → WF 평균. WF 전역 context broadcast + C7 native categorical + C23 out-of-fold TE. DataFrame 학습(v4 `.values` 버그 방지). GroupKFold(C64).
 - **결과**: Valid 61.38(역대 최선, v3 62.31 대비 -0.93)이나 Test 60.52로 v3(60.51)과 동일 → **천장 미돌파**.
 - 원인: row에 WF 집계를 함께 넣어 트리가 여전히 WF 평균 센서(C17_wf_mean, r=-0.797)에 의존. C23 기여폭 자체가 작음(eta² ~4.8%).
+
+**신뢰도 측정 (`modeling_v5/modeling_v5_confidence.ipynb`, 세션4)**
+- v5 예측에 신뢰도 계층 추가 (예측값 불변, valid RMSE 61.384 동일).
+- **예측별 신뢰구간(Split Conformal)**: OOF 잔차로 보정 → valid 90% 구간 실제 커버리지 **0.904** (보장 확인).
+- **불확실성 σ(Fold Disagreement)**: 5-fold 예측 표준편차. σ–오차 상관 **0.34**, σ 5분위 오차 38→47→53→64→69 단조 증가. 저신뢰(LOW) wafer 오차 68 vs OK 47.
+- within-WF row 편차는 0으로 붕괴(모델이 WF 집계에 의존) → fold 불일치로 대체.
+- 실무 활용: LOW 플래그 wafer 우선 실검사. 출력 `valid/test_confidence.csv`.
+- 환경 이슈 해결: Python 3.14→3.12 재구축, EFAULT는 jupyter lab 우회, pandas 3.0 문자열 dtype은 object 강제로 회피. `ENVIRONMENT.md` 참조.
+
+**Lot 누수 검증 (`modeling_v5/modeling_v5_leakage_check.ipynb`, 세션4 — 멘토 피드백)**
+- 우려: 성능이 비정상적으로 높음 → 누수 의심.
+- 진단: Lot ID는 피처 미사용이나 **CV를 wafer(C64) 단위**로 나눠 간접 Lot 누수. Lot 내부 C65 std 26.5(전체 262), GroupKFold(C64) 검증 wafer의 99.9%가 train에 같은 Lot 형제 보유. valid/test도 Lot 99.9~100% 공유 → valid도 독립 아님.
+- 검증: 동일 피처로 CV만 교체 → **wafer(C64) OOF 62.63 vs Lot(C20) OOF 70.42, 낙관 편향 +7.8pt**.
+- 결론: 코드 버그는 없으나 wafer 평가가 신규 Lot 대비 ~8pt 낙관적. 재앙적 누수는 아님(신규 Lot R² 0.93). **대회(~60~62)와 실무 신규 Lot(~70) 성능 분리 보고 필요.**
+- 권고: 최종 모델 CV를 GroupKFold(C20)로 전환(Lot은 그룹키만, 피처 미사용). 전 버전 Lot 단위 재평가 가치 있음.
 
 ### 4.3 핵심 진단
 
