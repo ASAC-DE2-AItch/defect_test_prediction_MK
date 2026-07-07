@@ -4,6 +4,20 @@
 
 반도체 제조 공정에서 수집되는 센서 데이터를 활용하여, **웨이퍼(Wafer)별 불량 수치를 예측**하는 머신러닝 프로젝트입니다.
 
+> 이 문서는 **프로젝트 안내서(README)** 입니다. 분석 결과·성능·그래프 해석이 궁금하면 `REPORT.md`(종합 보고서)를 보세요.
+
+## 지금까지의 결과 (요약)
+
+| 항목 | 값 |
+|------|-----|
+| 최종 Test RMSE | **60.5** (평균예측 259 대비 4.3배 개선) |
+| 정답 설명력 | R² 0.947 (분산의 94.7% 설명) |
+| 주력 모델 | LightGBM + GroupKFold(C64) |
+| 목표 | RMSE ~40 (미달, 진행 중) |
+| 진단 | "웨이퍼 집계 → 트리" 프레임은 ~60이 천장 |
+
+전체 실험 이력(baseline~v6)과 다음 계획은 `SESSION_LOG.md`, 결과 해석은 `REPORT.md`를 참조하세요.
+
 ---
 
 ## 목차
@@ -86,7 +100,7 @@
 
 ## 4. 분석 파이프라인 (단계별 설명)
 
-`modeling_pipeline.ipynb` 노트북은 아래 9단계로 구성됩니다.
+기준 노트북 `modeling_baseline.ipynb`는 아래 9단계로 구성됩니다. (이후 `modeling_v2`~`v6`는 이 파이프라인을 변형한 실험들입니다 — 6장 참조.)
 
 ### 단계 1: 데이터 로드
 
@@ -205,29 +219,51 @@ RMSE 계산 방법:
 
 ## 6. 프로젝트 구조
 
+각 실험은 새 폴더(`modeling_vN/`)로 관리하며, 폴더마다 노트북 + README(사용법) + REPORT(결과)를 둡니다.
+
 ```
-SKHynix_defect_test_prediction/
+defect_test_prediction_MK/
 │
-├── modeling_pipeline.ipynb   ← 메인 분석 노트북 (이 파일의 README)
-├── CLAUDE.md                 ← 프로젝트 규칙 문서
-├── README.md                 ← 지금 읽고 있는 파일
-├── REPORT.md                 ← 분석 결과 보고서
-├── requirements.txt          ← 필요한 패키지 목록
+├── CLAUDE.md                 ← 프로젝트 규칙·컬럼 명세
+├── README.md                 ← 지금 읽는 파일 (프로젝트 안내)
+├── REPORT.md                 ← 종합 결과 보고서 (성능·그래프·해석)
+├── SESSION_LOG.md            ← 전체 실험 이력·다음 계획
+├── requirements.txt          ← 패키지 목록
+├── train.py                  ← CLI 학습 파이프라인 (python train.py --tune)
+├── modeling_baseline.ipynb   ← 기준 모델 노트북
+├── valid_Y_submit.csv / test_Y_submit.csv  ← baseline 제출 파일
+├── assets/                   ← REPORT.md용 그래프
+│
+├── EDA/                      ← 탐색적 데이터 분석
+│   ├── 01_EDA.ipynb / _README.md / _REPORT.md / assets/
+│
+├── modeling_v2/  ← Step별 피처 집계 실험
+├── modeling_v3/  ← Optuna 하이퍼파라미터 튜닝 (Test 최선 60.5)
+├── modeling_v4/  ← 피처 대량 재설계 실험
+├── modeling_v5/  ← Row-level 예측 + C23 재발굴 (Valid 최선 61.4)
+├── modeling_v6/  ← 딥러닝(1D-CNN) 실험 (종료)
+│     └ 각 폴더: modeling_vN.ipynb / _README.md / _REPORT.md / assets/ / outputs/
 │
 ├── 문제1(하)/                ← 원본 데이터
 │   ├── train_data.csv
-│   ├── valid_X.csv
-│   ├── valid_Y_problem.csv
-│   ├── test_X.csv
-│   └── test_Y_problem.csv
+│   ├── valid_X.csv / valid_Y_problem.csv
+│   └── test_X.csv / test_Y_problem.csv
 │
-├── 문제1_하_answer/          ← 정답 데이터
-│   ├── valid_Y_answer.csv
-│   └── test_Y_answer.csv
-│
-├── valid_Y_submit.csv        ← 검증용 예측 결과 (출력)
-└── test_Y_submit.csv         ← 최종 평가용 예측 결과 (출력)
+└── 문제1_하_answer/          ← 정답 데이터 (평가용)
+    ├── valid_Y_answer.csv
+    └── test_Y_answer.csv
 ```
+
+### 6.1 버전별 실험 한눈에
+
+| 버전 | 핵심 시도 | Test RMSE | 결과 |
+|------|-----------|-----------|------|
+| baseline | 기본 통계 집계 | 61.15 | 출발선 |
+| v2 | Step별 센서 집계 | 61.25 | 악화 |
+| **v3** | Optuna 튜닝 | **60.51** | **최선** |
+| v4 | 교차·FFT 피처 대량 | 61.19 | 악화 |
+| v5 | Row-level + C23 | 60.52 | Valid 최선 |
+| v6 | 1D-CNN 딥러닝 | 66.04 | 종료 |
 
 ---
 
@@ -247,10 +283,19 @@ pip install -r requirements.txt
 ### 7.2 노트북 실행
 
 ```bash
-jupyter notebook modeling_pipeline.ipynb
+jupyter notebook modeling_baseline.ipynb   # 기준 모델
+# 또는 특정 실험: modeling_v3/modeling_v3.ipynb 등
 ```
 
 노트북을 열고, 위에서부터 순서대로 셀을 실행하면 됩니다 (Shift + Enter).
+
+### 7.3 CLI로 학습 (선택)
+
+```bash
+python train.py                 # 기본 파라미터
+python train.py --tune          # Optuna 100 trials 후 학습
+```
+결과는 `outputs/`에 `results.json`, `valid_Y_submit.csv`, `test_Y_submit.csv`로 저장됩니다.
 
 ### 주의사항
 

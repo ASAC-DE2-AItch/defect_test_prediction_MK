@@ -1,8 +1,10 @@
 # modeling_v3.ipynb — 노트북 안내서
 
 > Optuna 하이퍼파라미터 자동 탐색을 적용한 v3 모델링 파이프라인
+> **결과: Test RMSE 60.51 — 전 버전 최선.** 결과 해석은 `modeling_v3_REPORT.md` 참조
+> 이전 버전: `modeling_baseline.ipynb` (v1), `modeling_v2/` (v2)
 >
-> 이전 버전: `modeling_pipeline.ipynb` (v1), `modeling_v2.ipynb` (v2)
+> 이 문서는 **노트북 사용법**입니다. 실험 결과·해석은 같은 폴더의 REPORT를 보세요.
 
 ---
 
