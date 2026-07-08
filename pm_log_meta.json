@@ -1,0 +1,38 @@
+{
+  "campaign_start": "2018-12-01",
+  "detection_rule": {
+    "source_cols": [
+      "C40",
+      "C33"
+    ],
+    "c33_drop_threshold": -5,
+    "min_gap_hours": 6,
+    "target_used": false,
+    "type_source": "maintenance log (pm_log.json) — NOT inferred from C65"
+  },
+  "pm_events": [
+    {
+      "pm_id": 1,
+      "type": "major",
+      "last_low_wafer_ts": "2018-12-23 08:32:04.100000",
+      "first_high_wafer_ts": "2018-12-24 01:31:22.700000",
+      "pm_date": "2018-12-24",
+      "evidence": "C33 39->1 reset + 17.0h production gap"
+    }
+  ],
+  "regime_model": "is_high_regime = 1 if 최근 PM==major else 0 (minor 후·pre = 0). 패턴 M m m M …",
+  "cross_check": {
+    "valid_X": [
+      "2018-12-24"
+    ],
+    "test_X": [
+      "2018-12-24"
+    ]
+  },
+  "generated_by": "EDA/02_EDA_regime.ipynb",
+  "verified_on": [
+    "train",
+    "valid_X",
+    "test_X"
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "_comment": "Phase 0 de-risking 산출물 — pm_feature/lgbm_model.pkl에서 복원 (train.py / feature_importance.csv 부재 대응). M0a/M0b에서 재추출·검증 대상. 값은 pkl 내장 params/gain 그대로.",
+  "generated_by": "modeling_v8 Phase 0 (2026-07-08)",
+  "source_pkl": "pm_feature/lgbm_model.pkl",
+  "read_with_lightgbm_version": "4.6.0",
+  "model_type": "lightgbm.basic.Booster",
+  "num_trees": 705,
+  "best_iteration": 705,
+  "num_boost_round": 5000,
+  "top_n_features": 10,
+  "params": {
+    "objective": "regression",
+    "metric": "rmse",
+    "learning_rate": 0.029017547696366934,
+    "num_leaves": 175,
+    "min_child_samples": 5,
+    "feature_fraction": 0.6324704159196377,
+    "bagging_fraction": 0.864012693783303,
+    "bagging_freq": 7,
+    "lambda_l1": 5.04154328625296,
+    "lambda_l2": 0.024814259264649002,
+    "min_split_gain": 0.2573073648505903,
+    "verbose": -1,
+    "seed": 42,
+    "num_iterations": 5000
+  },
+  "features_by_gain": [
+    "is_post_pm",
+    "post_pm_days",
+    "days_since_last_pm",
+    "C33",
+    "dslp_x_hour",
+    "hour",
+    "hour_x_c33",
+    "C60_mean_step4",
+    "C59_mean_step4",
+    "is_special_recipe"
+  ],
+  "feature_gains": {
+    "is_post_pm": 5265583797.88,
+    "post_pm_days": 3196519019.24,
+    "days_since_last_pm": 1427073307.40,
+    "C33": 1094779954.93,
+    "dslp_x_hour": 513928724.31,
+    "hour": 283744296.49,
+    "hour_x_c33": 222283394.75,
+    "C60_mean_step4": 146588551.67,
+    "C59_mean_step4": 119760070.42,
+    "is_special_recipe": 44112671.67
+  },
+  "group_mapping": {
+    "group_A_time_regime_7": ["is_post_pm", "post_pm_days", "days_since_last_pm", "C33", "dslp_x_hour", "hour", "hour_x_c33"],
+    "group_B_sensor_recipe_3": ["C60_mean_step4", "C59_mean_step4", "is_special_recipe"]
+  },
+  "residual_unknowns": {
+    "early_stopping_rounds": "pkl 미저장 → 프로젝트 관례값 100 사용 (PLAN §8.0). best_iteration=705 < num_iterations=5000 이므로 early stopping 발동 확인됨"
+  },
+  "retires_risks": [
+    "R1 (train.py / feature_importance.csv 부재): PARAMS·NUM_BOOST_ROUND·TOP_N·top-10 피처명/gain 복원으로 사실상 소멸",
+    "R11 (pkl 로드 호환): 클라우드 lightgbm 4.6.0 로드 성공. 로컬 venv에서도 동일 로드 확인 권장"
+  ],
+  "matches_plan": "PLAN §B-1 results.json M0 features 목록 및 §7.1 그룹 A(7)+B(3)와 정확히 일치. FEATURE_SPEC gain 순위(C33 #4, C59/C60 #8/#9, is_special_recipe 최하위)와도 일치 → V12 상호검증 강화"
+}

@@ -1,6 +1,6 @@
 # 세션 로그 — SK Hynix Defect Test Prediction
 
-> 최종 업데이트: 2026-07-07 (세션 4 — 신뢰도 측정 + 환경 정비)
+> 최종 업데이트: 2026-07-08 (세션 4 정리 — 신뢰도 측정 + Lot 누수 검증 + v7 생성 + 환경/git 정비)
 
 ---
 
@@ -108,6 +108,12 @@
 - 실무 활용: LOW 플래그 wafer 우선 실검사. 출력 `valid/test_confidence.csv`.
 - 환경 이슈 해결: Python 3.14→3.12 재구축, EFAULT는 jupyter lab 우회, pandas 3.0 문자열 dtype은 object 강제로 회피. `ENVIRONMENT.md` 참조.
 
+**v7 (`modeling_v7/`) — 물리 검증 클린 리빌드 (세션4, 생성·미실행)**
+- 계기: 사용자 업로드 데이터 사전(`FEATURE_SPEC.md`)으로 각 센서의 물리 의미 확정. 목표를 "RMSE 돌파"에서 **실무형(신규 lot 견고·해석 가능) 모델**로 재조정.
+- 사전 검증: 사전이 제시한 신규 각도(점화/정착 분리, C59/C60 재구성, 편차 피처)도 v5 잔차와 상관 <0.05 → **RMSE ~60 바닥 4중 확인**(잔차·보정·편차·과도). 목표 40은 Lot ID로만 도달(RMSE 30, 비일반화라 배제).
+- 설계: 설정값(C1/C4/C5/C48) 제거, 실측 센서만. Step4 점화(C42=1)/정착 분리, C59/C60 재구성, 드리프트(C33/C25/C17·C9), C50 endpoint. 물리 그룹별 피처 중요도 출력.
+- 상태: 노트북 생성·데이터 파이프라인 검증 완료. **아직 실행 안 함** → 다음 세션에서 Lot-CV로 실행 권장.
+
 **Lot 누수 검증 (`modeling_v5/modeling_v5_leakage_check.ipynb`, 세션4 — 멘토 피드백)**
 - 우려: 성능이 비정상적으로 높음 → 누수 의심.
 - 진단: Lot ID는 피처 미사용이나 **CV를 wafer(C64) 단위**로 나눠 간접 Lot 누수. Lot 내부 C65 std 26.5(전체 262), GroupKFold(C64) 검증 wafer의 99.9%가 train에 같은 Lot 형제 보유. valid/test도 Lot 99.9~100% 공유 → valid도 독립 아님.
@@ -136,7 +142,10 @@ defect_test_prediction_MK/
 ├── README.md                     # 프로젝트 개요
 ├── REPORT.md                     # v1 결과 보고서
 ├── SESSION_LOG.md                # ← 이 파일
-├── requirements.txt              # Python 의존성
+├── ENVIRONMENT.md                # 가상환경 구축·사용 가이드 (세션4)
+├── FEATURE_SPEC.md               # 데이터 사전 (센서 물리 의미 유추, 세션4 업로드)
+├── .gitignore                    # venv/캐시/zip 제외 (세션4)
+├── requirements.txt              # Python 의존성 (torch 추가됨)
 ├── train.py                      # CLI 학습 파이프라인 (python train.py --tune)
 ├── modeling_baseline.ipynb       # 기준 모델 노트북 (v1 정리본)
 ├── valid_Y_submit.csv            # baseline 제출 파일
@@ -166,15 +175,21 @@ defect_test_prediction_MK/
 │
 ├── modeling_v5/
 │   ├── modeling_v5.ipynb
-│   ├── modeling_v5_README.md
-│   ├── modeling_v5_REPORT.md
-│   └── outputs/  (valid/test_Y_submit.csv, results.json)
+│   ├── modeling_v5_README.md / _REPORT.md / _SETUP.md
+│   ├── modeling_v5_confidence.ipynb           # 신뢰도 측정 (세션4)
+│   ├── modeling_v5_confidence_README.md / _REPORT.md
+│   ├── modeling_v5_leakage_check.ipynb        # Lot 누수 검증 (세션4)
+│   ├── modeling_v5_leakage_check_REPORT.md
+│   └── outputs/  (submit, results.json, valid/test_confidence.csv, confidence_report.json)
 │
 ├── modeling_v6/
 │   ├── modeling_v6.ipynb   (1D-CNN + Cell8 LSTM)
 │   ├── modeling_v6_README.md
 │   ├── modeling_v6_REPORT.md
 │   └── outputs/  (valid/test_Y_submit.csv, results.json)
+│
+├── modeling_v7/                   # 물리 검증 클린 리빌드 (세션4, 미실행)
+│   └── modeling_v7.ipynb
 │
 ├── 문제1(하)/                    # 원본 데이터
 │   ├── train_data.csv
@@ -214,31 +229,37 @@ python train.py --tune --n_trials 200  # trial 수 지정
 | Jupyter 커널 에러 시 | `taskkill /F /IM jupyter* /T` 후 VS Code 재시작 |
 | 의존성 설치 | `python -m pip install -r requirements.txt --break-system-packages` |
 
+**세션4 환경 이슈 & 해결 (상세는 `ENVIRONMENT.md`)**
+- **Python 버전**: 3.14 사용 금지(휠 부재·커널 오류) → `py -3.12 -m venv venv`로 3.12 재구축.
+- **커널 EFAULT**(`listen EFAULT ... :::9001`): VS Code Jupyter 소켓 문제. `jupyter lab` 브라우저 실행으로 우회(또는 `netsh winsock reset` 후 재부팅).
+- **pandas 3.0 문자열 dtype**: groupby가 WF 일부만 잡는 문제 → 키 컬럼(C64/C23/C6/C7) `astype("object")` 강제 + 저장 후 행수 assert.
+- **git**: `.gitignore` 추가(venv/캐시/zip 제외). venv가 실수로 커밋됐던 이력은 `reset --soft` + 재커밋으로 정리.
+
 ---
 
-## 8. 다음 세션에서 해야 할 일 (RMSE ~60 → ~40)
+## 8. 다음 세션에서 해야 할 일
 
-**세션3 완료**: 데이터 재탐색 + Row-level(v5) + 시퀀스 딥러닝(v6) 실행.
-- tabular 프레임(집계·row) ~60 수렴 확정.
-- **딥러닝(v6) 종료** — 표본 부족·짧은 시퀀스로 GBDT에 패배(Test 66).
-- 오차 분석 결과: 남은 오차는 **742~976 구간 편향 +58.8** 등 특정 regime 미포착에 집중.
+**세션4 완료**: 신뢰도 측정 + Lot 누수 검증 + v7 생성 + 환경/git 정비.
+- regime 진단(세션4 초): v5 잔차가 모든 FDC 피처와 무상관 → RMSE ~60은 **일반화 바닥**으로 4중 확인. 목표 40은 Lot ID로만 도달(비일반화라 배제) → 목표를 **실무형 모델**로 재조정.
+- **신뢰도 계층 완성**: split conformal 90% 커버리지 0.904, fold 불일치 σ–오차 상관 0.34. LOW 플래그 wafer 우선 검사 활용.
+- **Lot 누수 발견(핵심)**: wafer-CV(62.63)는 신규 Lot(70.42) 대비 +7.8pt 낙관적. 대회 성능(~60)과 실무 신규 Lot 성능(~70)을 분리해야 함.
 
-### 우선순위별 다음 시도 (갱신)
+### 우선순위별 다음 시도 (Lot 누수 반영 갱신)
 
 | 순위 | 방향 | 핵심 아이디어 | 기대 | 상태 |
 |------|------|-------------|------|------|
-| ~~-~~ | ~~데이터 재탐색 / Row-level / 시퀀스~~ | — | — | ✅ 완료(세션3) |
-| **1** | **regime 진단 → 세그먼트 피처/모델 (v7)** | 742~976 구간·C23_14/12 과대예측 WF들의 공통점(C23/C7 조합/센서 임계) 발굴 → 피처화 또는 구간별 모델 | 미지수, 최대 잠재력 | 다음 |
-| 2 | **멀티모델 앙상블** | v3 LGB + v5 row-level + XGB + CatBoost 가중평균 | 1~3pt, ~59 안정 | 대기 |
-| 3 | **OOF 사후 보정** | 극단 수축을 isotonic/선형 보정 (OOF only) | 0~2pt | 대기 |
-| ~~4~~ | ~~딥러닝(LSTM 등)~~ | 표본 한계 확인 | 종료 | ✅ v6 |
+| ~~-~~ | ~~재탐색 / Row-level / 시퀀스 / regime 진단~~ | — | — | ✅ 완료(세션3~4) |
+| **1** | **Lot 단위 CV로 전 버전 재평가** | baseline~v7을 GroupKFold(C20)로 재측정 → "실무형 정직한 성능표" 작성. wafer-CV 순위와 달라질 수 있음 | 진짜 성능 확정 | 다음 |
+| **2** | **v7 실행 (물리 검증 클린 리빌드)** | 이미 생성됨. Lot-CV로 실행 → 물리 피처가 신규 Lot에 더 견고한지 확인 | 실무 견고성 | 다음 |
+| 3 | **멀티모델 앙상블** | v3 LGB + v5 row-level + XGB + CatBoost | 1~3pt, 리더보드 방어 | 대기 |
+| 4 | **실무 플랫폼 확장** | 신뢰도(완료) + 드리프트 모니터링(C33/C25) + 이상 WF 플래깅 | 실무 가치 | 대기 |
 
-### 구체적 실행 계획 (v7: regime 진단)
+### 구체적 실행 계획 (다음 세션)
 
-1. v5 OOF 잔차를 타깃으로, 어떤 피처(C23, C7 구성비, 주요 센서 구간)가 큰 잔차를 예측하는지 분석(잔차에 트리 학습 → 중요도).
-2. 특히 정답 742~976 구간에서 과대예측되는 WF들을 격리해 공통 특성 도출.
-3. 발견 시 → (a) regime 지시 피처 추가 후 재학습, 또는 (b) regime별 분리 모델.
-4. 현실성: R² 0.947 → 목표 40은 R² 0.977 필요. regime 신호가 유일한 열쇠일 가능성. 없으면 앙상블로 ~59 확정 후 마무리 검토.
+1. **Lot 단위 재평가**: `modeling_v5_leakage_check.ipynb`의 `run_cv(group_col)` 방식을 baseline~v7에 적용 → 각 버전 wafer-CV vs Lot-CV 성능표. 목표 RMSE도 신규 Lot 기준(~70)에서 재설정.
+2. **v7 실행**: 커널 `venv (3.12)`, Lot-CV 기준. 물리 그룹별 피처 중요도로 해석.
+3. **신뢰도 재보정(선택)**: conformal/σ를 Lot 단위 OOF로 재보정하면 신규 Lot에 더 정직한 구간.
+4. **모델링 원칙 갱신 검토**: CLAUDE.md의 GroupKFold(C64)를 실무 평가용으로 GroupKFold(C20) 병기.
 
 ---
 
