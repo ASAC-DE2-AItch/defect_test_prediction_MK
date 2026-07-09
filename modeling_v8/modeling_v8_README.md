@@ -113,4 +113,12 @@ modeling_v8/
 2. **커널**: `venv (Python 3.12)`.
 3. **패키지**: `pandas numpy lightgbm scikit-learn`. 추가 설치 불필요.
 4. Jupyter/VS Code에서 **Restart & Run All**. 약 8~15분(train 44MB 로드 + 피처 3세트 빌드 + pkl 예측 + M0b·M-T·M1·M2 재학습). **M2(Cell 10)가 가장 김** — 563피처 풀 학습 + TOP_N 스윕.
-5. 확인: Cell 4 `✅ v1.5 동치`, Cell 5 `🟢 G1(a) 통과`, Cell 6 `(a)(b)(c) ✅`, Cell 7 `🟢 G1 완결`(valid 38.40), Cell 8 `센서 기여 +3.91pt`, Cell 9 `❌ 기각`(ΔCV +0.68)
+5. 확인: Cell 4 `✅ v1.5 동치`, Cell 5 `🟢 G1(a) 통과`, Cell 6 `(a)(b)(c) ✅`, Cell 7 `🟢 G1 완결`(valid 38.40), Cell 8 `센서 기여 +3.91pt`, Cell 9 `❌ 기각`(ΔCV +0.68), Cell 10 `❌ 기각`(ΔCV +3.59).
+
+> ⚠️ **pkl 로드(R11)**: Cell 1이 원본 `lgbm_model.pkl`을 unpickle합니다. 로컬 lightgbm 버전이 원본과 크게 다르면 실패할 수 있습니다. 에러 시 lightgbm 버전 확인 또는 작성자에게 `Booster.save_model()` 텍스트 포맷 요청.
+
+## 현재 상태 & 다음
+
+- ✅ **M0a·M0b·M-T·M1·M2 완료** — 피처 정합(G1a) + 재학습 확정(**G1 완결**) + 센서 기여 +3.91pt + **M1·M2 기각**(C23_te·센서 풀 모두 코어 10 못 넘음 → 코어 10 확정적) + **PLAN v1.5 verdict 동기화**(수치 불변).
+- ⬜ **다음**: **M3**(row-level 결합, v5 빌더 이식·기대 하향) → M4(TOP_N·ablation 확정, G2) → M5~M8.
+- 상세 스냅샷: M0 → `REPORT/modeling_v8_REPORT_01_M0.md`, M1 → `REPORT/…_02_M1.md`, M2 → `REPORT/…_03_M2.md`.
