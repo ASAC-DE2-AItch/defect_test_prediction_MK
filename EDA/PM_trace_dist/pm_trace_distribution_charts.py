@@ -1,7 +1,8 @@
 # ============================================================================
-# PM 전후 FDC 트레이스 분포 변화 차트 생성기
+# PM 전후 FDC 트레이스 분포 변화 차트 생성기 (26 수치센서 + C6 레시피패널)
 #   출력: out/01_overview_{ko,en}.png  (종합: pre/post 분포 박스쌍 + KS 막대)
-#         out/02_trend_{ko,en}.png     (센서별 변동추이 격자, C6 레시피비율 포함)
+#         out/02_trend_{ko,en}.png     (센서별 변동추이 격자)
+#   물리센서(다중공선성 제거분) 청록 라벨: C11 플라즈마·C31 RF·C15/C16 가스
 #   실행: python pm_trace_distribution_charts.py   (train_data.csv 자동 탐색)
 #   필요: pandas, numpy, scipy, matplotlib
 # ============================================================================
@@ -30,8 +31,7 @@ for _fp in _FONTC:
         except Exception: pass
 plt.rcParams['axes.unicode_minus']=False
 
-import glob as _glob
-# 데이터 자동 탐색: 이 스크립트가 어디서 실행되든 train_data.csv를 찾음
+# 데이터 자동 탐색: 어디서 실행하든 train_data.csv를 찾음
 _CANDS=["../../문제1(하)/train_data.csv","../문제1(하)/train_data.csv",
         "문제1(하)/train_data.csv","train_data.csv",
         "/mnt/user-data/uploads/defect_test_prediction_MK/문제1(하)/train_data.csv"]
@@ -39,28 +39,34 @@ SRC=next((p for p in _CANDS if os.path.exists(p)), _CANDS[0])
 OUT="./out"; os.makedirs(OUT,exist_ok=True)
 PM=pd.Timestamp('2018-12-24')
 SENSORS=['C4','C12','C17','C18','C25','C27','C32','C42','C46','C48','C49','C50',
-         'C52','C54','C56','C57','C58','C59','C60','C61','C62','C63']
+         'C52','C54','C56','C57','C58','C59','C60','C61','C62','C63',
+         'C11','C15','C16','C31']   # 뒤 4종: 다중공선성 제거됐던 물리센서(플라즈마/RF/가스)
 
 C_LINE='#3A4A5A'; C_BAND='#C3D0DE'; C_PRE='#2C6FB3'; C_POST='#D9822B'
 C_PM='#3A3A3A'; BG_PRE='#EFF4FA'; BG_POST='#FCF4EA'; GRID='#E6E6E6'
+C_ADD='#0E7C7B'  # 추가 물리센서 라벨 색(청록)
+PHYS={'C11':('플라즈마','plasma'),'C31':('RF','RF'),'C15':('가스','gas'),'C16':('가스','gas')}
+ADDED=set(PHYS)
+def slabel(s,lang):
+    return (f"{s} · {PHYS[s][0 if lang=='ko' else 1]}") if s in PHYS else s
 
 TXT={
  'ko':{'sup1':'PM 전후 FDC 트레이스 분포 비교 — 종합',
    'main':'PM 이전 vs 이후 값 분포  (센서별 전체표준화 · 윈저 1–99%)',
    'ks':'분포 차이\n(KS 통계량)','xl':'표준화 값 (σ)',
-   'cap1':'FDC 센서 22종 · 박스=IQR(25–75%), 점=중앙값, 수염=10–90% · 정렬: KS 내림차순 · pre 38,460행(~12-23)/post 85,154행(12-24~)',
+   'cap1':'FDC 센서 26종(다중공선성 제거 4종 C11·C31·C15·C16 = 청록 라벨로 추가) · 박스=IQR(25–75%), 점=중앙값, 수염=10–90% · 정렬: KS 내림차순 · pre 38,460행/post 85,154행',
    'lgpre':'PM 이전','lgpost':'PM 이후',
    'sup2':'센서별 PM 이전·이후 변동 추이  (일별 중앙값 · IQR 25–75%)',
    'lg':['일별 중앙값','IQR (25–75%)','PM 이전 중앙값','PM 이후 중앙값','PM 시점 (12-24)'],
-   'cap2':'x축 2018-12-01~2019-02-08 · y축 로버스트 범위(2–98%)로 극단 스파이크 절단 · KS 내림차순 정렬 · C6은 범주형이라 값 대신 레시피 C6_1 비율(%)로 표시(맨 끝 패널)'},
+   'cap2':'x축 2018-12-01~2019-02-08 · y축 로버스트 범위(2–98%) 절단 · KS 내림차순 정렬 · C6=레시피 C6_1 비율(%)(맨 끝) · 청록 라벨=다중공선성 제거 물리센서(플라즈마/RF/가스) 추가'},
  'en':{'sup1':'FDC Trace Distribution: Pre vs Post PM — Overview',
    'main':'Value distribution pre vs post PM  (per-sensor global z · winsorized 1–99%)',
    'ks':'Distribution\ndiff. (KS)','xl':'Standardized value (σ)',
-   'cap1':'22 FDC sensors · box=IQR(25–75%), dot=median, whisker=10–90% · sorted by KS desc · pre 38,460 / post 85,154 rows',
+   'cap1':'26 FDC sensors (incl. 4 multicollinearity-removed C11·C31·C15·C16, teal labels) · box=IQR(25–75%), dot=median, whisker=10–90% · sorted by KS desc · pre 38,460 / post 85,154 rows',
    'lgpre':'Pre-PM','lgpost':'Post-PM',
    'sup2':'Per-sensor variation trend before/after PM  (daily median · IQR 25–75%)',
    'lg':['Daily median','IQR (25–75%)','Pre-PM median','Post-PM median','PM (12-24)'],
-   'cap2':'x 2018-12-01–2019-02-08 · y clipped to robust 2–98% range · sorted by KS desc · C6 shown as recipe C6_1 share (%) in the last panel (categorical)'},
+   'cap2':'x 2018-12-01–2019-02-08 · y clipped to robust 2–98% · sorted by KS desc · C6=recipe C6_1 share (%)(last) · teal labels = added multicollinearity-removed physical sensors (plasma/RF/gas)'},
 }
 def setfont(lang): plt.rcParams['font.family']=KRFONT if lang=='ko' else 'DejaVu Sans'
 
@@ -93,7 +99,7 @@ pre_med=df[df['_pre']][SENSORS].median(); post_med=df[~df['_pre']][SENSORS].medi
 # ================= FIGURE 1 =================
 def fig_overview(lang):
     setfont(lang); T=TXT[lang]
-    fig=plt.figure(figsize=(15,11))
+    fig=plt.figure(figsize=(15,12.8))
     gs=fig.add_gridspec(1,2,width_ratios=[3.6,1.0],wspace=0.04,
                         left=0.075,right=0.965,top=0.9,bottom=0.09)
     axM=fig.add_subplot(gs[0]); axK=fig.add_subplot(gs[1],sharey=axM)
@@ -108,7 +114,10 @@ def fig_overview(lang):
             axM.plot([med],[y+dy],'o',color=col,ms=3.4,zorder=5)
         if i%2==1: axM.axhspan(y-0.5,y+0.5,color='#FAFAFA',zorder=0)
     axM.axvline(0,color='#BFBFBF',lw=0.9,zorder=1)
-    axM.set_ylim(n-0.5,-0.5); axM.set_yticks(range(n)); axM.set_yticklabels(order,fontsize=10.5)
+    axM.set_ylim(n-0.5,-0.5); axM.set_yticks(range(n))
+    axM.set_yticklabels([slabel(s,lang) for s in order],fontsize=10.3)
+    for t,ss in zip(axM.get_yticklabels(),order):
+        if ss in ADDED: t.set_color(C_ADD); t.set_fontweight('bold')
     axM.set_xlabel(T['xl'],fontsize=11); axM.set_title(T['main'],fontsize=12.5,pad=8,loc='left')
     axM.grid(axis='x',color=GRID,lw=0.8); axM.set_axisbelow(True)
     for sp in ['top','right','left']: axM.spines[sp].set_visible(False)
@@ -169,7 +178,7 @@ def fig_trend(lang):
         ylo=min(plo,pre_med[s],post_med[s]); yhi=max(phi,pre_med[s],post_med[s])
         if yhi-ylo<1e-9: ylo,yhi=ylo-1,yhi+1
         pad=(yhi-ylo)*0.12; ax.set_ylim(ylo-pad,yhi+pad)
-        ax.set_title(s,fontsize=12,fontweight='bold',loc='left',pad=3)
+        ax.set_title(slabel(s,lang),fontsize=12,fontweight='bold',loc='left',pad=3,color=C_ADD if s in ADDED else '#222')
         ax.grid(True,color=GRID,lw=0.7); ax.set_axisbelow(True); ax.tick_params(labelsize=8.5)
         for sp in ['top','right']: ax.spines[sp].set_visible(False)
         for sp in ['left','bottom']: ax.spines[sp].set_color('#BBB')
