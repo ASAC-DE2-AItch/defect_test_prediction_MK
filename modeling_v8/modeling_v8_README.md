@@ -7,7 +7,7 @@
 
 ```
 modeling_v8/
-├─ modeling_v8.ipynb              노트북 (피처 빌드 + M0a·M0b·M-T·M1·M2·M3, Cell 1~11)
+├─ modeling_v8.ipynb              노트북 (피처 빌드 + M0a·M0b·M-T·M1·M2·M3·M4, Cell 1~12)
 ├─ modeling_v8_README.md          ← 이 파일: 살아있는 인덱스(사용법+누적 로그+인덱스)
 ├─ modeling_v8_PLAN.md            기획서 (PLAN v1.5)
 ├─ pkl_recovered_meta.json        원본 pkl 복원 메타(PARAMS·top-10·gain)
@@ -15,7 +15,8 @@ modeling_v8/
    ├─ modeling_v8_REPORT_01_M0.md    Phase 3 + M0a·M0b·M-T (G1)
    ├─ modeling_v8_REPORT_02_M1.md    M1 (+C23_te, 기각)
    ├─ modeling_v8_REPORT_03_M2.md    M2 (센서 풀 gain 재선별, 기각)
-   └─ modeling_v8_REPORT_04_M3.md    M3 (row-level 결합, 기각)
+   ├─ modeling_v8_REPORT_04_M3.md    M3 (row-level 결합, 기각)
+   └─ modeling_v8_REPORT_05_M4.md    M4 (피처셋 확정, 🟢 G2)
 ```
 
 **명명 규칙** — `REPORT/modeling_v8_REPORT_<NN>_<마일스톤>.md`
@@ -38,6 +39,7 @@ modeling_v8/
 | **M1** (+C23_te) | CV 41.03 / valid 38.78 — **❌ 기각**(ΔCV +0.68, 레짐 프록시) |
 | **M2** (센서 풀 재선별) | 최고 CV 43.94 — **❌ 기각**(ΔCV +3.59, 코어 10 못 넘음, C25 미부상 23위) |
 | **M3** (row-level 결합) | CV **50.87** / valid 49.27 / test 48.88 — **❌ 기각**(ΔCV +10.52, WF-level 대비 큰 열세) |
+| **M4** (피처셋 확정) | 레짐제거 +218.9·센서제거 +3.91(둘 다 필수) / 시간 dedup +8.0(7종 유지) / gain-greedy 최선 43.94(코어10 우위) — **🟢 G2 통과** |
 | P1 스모크 | ✅ v1.5 3종(quiet/quiet-major/loud) 통과 — loud앵커로 가짜 스파이크 차단 |
 | 비교 | v5 CV 60.5 / valid 61.4 → **v8 M0b CV 40.35 / valid 38.40** (약 −20pt) |
 
@@ -51,7 +53,7 @@ modeling_v8/
 | **M1** | +C23_te (11피처, 중첩 OOF) | 38.78 | 39.20 | **41.03** | ❌ 기각 (ΔCV +0.68) | `_02_M1` |
 | **M2** | +센서풀 gain 재선별 (최고 TOP_15) | 41.67 | 43.25 | **43.94** | ❌ 기각 (ΔCV +3.59) | `_03_M2` |
 | **M3** | row-level 결합 (v5 프레임 + 그룹 A/B broadcast) | 49.27 | 48.88 | **50.87** | ❌ 기각 (ΔCV +10.52) | `_04_M3` |
-| M4 | TOP_N·블록 ablation·시간 dedup | — | — | — | ⬜ → G2 | (예정) |
+| **M4** | 블록 ablation · 시간 dedup · TOP_N 스윕 | 38.40 | 38.91 | **40.35** | 🟢 **G2** (코어10 확정) | `_05_M4` |
 
 ## 버전 비교표 (CV/valid, 낮을수록 좋음)
 
@@ -109,6 +111,7 @@ modeling_v8/
 | **9** | **M1** — +C23_te(11, 중첩 OOF TE m=20) → ΔCV 채택 게이트 |
 | **10** | **M2** — 센서 풀(563) gain 재선별: pass1 gain 랭킹 → TOP_N 스윕 + 코어10+K probe → ΔCV 게이트 |
 | **11** | **M3** — row-level 결합: v5 빌더(행 센서+context+row_pos+C6/C7) + 그룹 A broadcast + hour_row(157피처) → M0b 동일 분할 OOF → 행→WF 평균 → ΔCV 게이트 |
+| **12** | **M4** — 피처셋 확정: 블록 ablation(GA/GB) + 시간 dedup(최소셋 vs 7종) + TOP_N 스윕(M2 gain 랭킹) → **G2** 판정 |
 
 ## 실행 방법
 
@@ -116,12 +119,12 @@ modeling_v8/
 2. **커널**: `venv (Python 3.12)`.
 3. **패키지**: `pandas numpy lightgbm scikit-learn`. 추가 설치 불필요.
 4. Jupyter/VS Code에서 **Restart & Run All**. 약 12~20분(train 44MB 로드 + 피처 3세트 빌드 + pkl 예측 + M0b·M-T·M1·M2 재학습 + **M3 row-level 5-fold**). **M3(Cell 11)가 가장 김** — 123,614행 × 157피처 × 5-fold(그다음 M2 Cell 10).
-5. 확인: Cell 4 `✅ v1.5 동치`, Cell 5 `🟢 G1(a) 통과`, Cell 6 `(a)(b)(c) ✅`, Cell 7 `🟢 G1 완결`(valid 38.40), Cell 8 `센서 기여 +3.91pt`, Cell 9 `❌ 기각`(ΔCV +0.68), Cell 10 `❌ 기각`(ΔCV +3.59), Cell 11 `❌ 기각`(ΔCV +10.52, M3 CV 50.87).
+5. 확인: Cell 4 `✅ v1.5 동치`, Cell 5 `🟢 G1(a) 통과`, Cell 6 `(a)(b)(c) ✅`, Cell 7 `🟢 G1 완결`(valid 38.40), Cell 8 `센서 기여 +3.91pt`, Cell 9 `❌ 기각`(ΔCV +0.68), Cell 10 `❌ 기각`(ΔCV +3.59), Cell 11 `❌ 기각`(ΔCV +10.52, M3 CV 50.87), Cell 12 `🟢 G2 통과`(레짐제거 +218.9·센서제거 +3.91·시간 dedup +8.0).
 
 > ⚠️ **pkl 로드(R11)**: Cell 1이 원본 `lgbm_model.pkl`을 unpickle합니다. 로컬 lightgbm 버전이 원본과 크게 다르면 실패할 수 있습니다. 에러 시 lightgbm 버전 확인 또는 작성자에게 `Booster.save_model()` 텍스트 포맷 요청.
 
 ## 현재 상태 & 다음
 
-- ✅ **M0a·M0b·M-T·M1·M2·M3 완료** — 피처 정합(G1a) + 재학습 확정(**G1 완결**) + 센서 기여 +3.91pt + **M1·M2·M3 전부 기각**(C23_te·센서 풀·row-level 모두 코어 10 못 넘음). **피처·프레임 탐색은 코어 10 WF-level로 수렴** — C65가 WF 상수라 row-level은 −11pt 열세(E10 확증).
-- ⬜ **다음**: **M4**(TOP_N 스윕 {8,10,12,15,20} · 그룹 ablation[A/B/C23_te] · 시간 블록 dedup → 피처셋 확정 **G2**) → M5(모델 벤치·튜닝) → M7(정직성) → M8(시간 재분할).
-- 상세 스냅샷: M0 → `REPORT/modeling_v8_REPORT_01_M0.md`, M1 → `…_02_M1.md`, M2 → `…_03_M2.md`, **M3 → `…_04_M3.md`**.
+- ✅ **M0a~M4 완료** — 피처 정합(G1a) + 재학습 확정(**G1**) + 센서 기여 +3.91pt + **M1·M2·M3 전부 기각** + **M4 🟢 G2 통과**. 첨가(M1)·재선별(M2)·프레임 교체(M3)·감축/자동선택(M4)을 **사방으로 확인** → **코어 10 WF-level 피처셋 동결**(CV 40.35 / valid 38.40 / test 38.91).
+- ⬜ **다음**: **M5a**(모델 후보 벤치: LGBM/XGBoost/CatBoost/HistGB/ExtraTrees·RF/정칙화 선형/레짐 세그먼트) → **M5b**(상위 2개 Optuna 경량) → (M6 앙상블 옵션) → **M7**(Lot-CV/time-split 정직성) → **M8**(시간 재분할 시뮬).
+- 상세 스냅샷: M0 → `REPORT/modeling_v8_REPORT_01_M0.md`, M1 → `…_02_M1.md`, M2 → `…_03_M2.md`, M3 → `…_04_M3.md`, **M4 → `…_05_M4.md`**.
