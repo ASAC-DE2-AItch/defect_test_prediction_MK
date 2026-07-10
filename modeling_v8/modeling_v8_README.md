@@ -18,7 +18,8 @@ modeling_v8/
    ├─ modeling_v8_REPORT_03_M2.md    M2 (센서 풀 gain 재선별, 기각)
    ├─ modeling_v8_REPORT_04_M3.md    M3 (row-level 결합, 기각)
    ├─ modeling_v8_REPORT_05_M4.md    M4 (피처셋 확정, 🟢 G2)
-   └─ modeling_v8_REPORT_06_M5a.md   M5a (모델 벤치 7종×3트랙, ExtraTrees 잠정선두·검증대기)
+   ├─ modeling_v8_REPORT_06_M5a.md   M5a (모델 벤치 7종×3트랙, ExtraTrees 게이트 통과)
+   └─ modeling_v8_REPORT_07_M5b.md   M5b (Optuna 튜닝, 챔피언 ExtraTrees 확정·M7 대기)
 ```
 
 **명명 규칙** — `REPORT/modeling_v8_REPORT_<NN>_<마일스톤>.md`
@@ -42,9 +43,10 @@ modeling_v8/
 | **M2** (센서 풀 재선별) | 최고 CV 43.94 — **❌ 기각**(ΔCV +3.59, 코어 10 못 넘음, C25 미부상 23위) |
 | **M3** (row-level 결합) | CV **50.87** / valid 49.27 / test 48.88 — **❌ 기각**(ΔCV +10.52, WF-level 대비 큰 열세) |
 | **M4** (피처셋 확정) | 레짐제거 +218.9·센서제거 +3.91(둘 다 필수) / 시간 dedup +8.0(7종 유지) / gain-greedy 최선 43.94(코어10 우위) — **🟢 G2 통과** |
-| **M5a** (모델 벤치 7종) | F-C10: **ExtraTrees 38.00** > LGBM 40.35(=cv_m0b) > SegLGBM 40.84 > XGB 41.43 > CatB 41.66 ≫ HistGB 50.97 > Ridge 67.14. 코어10이 3모델 전부에서 트랙 우위(G2 견고). **ExtraTrees 잠정선두 −2.35pt — lot-mate 누수 의심, valid/test 확인(Cell 15)·M7 대기** |
+| **M5a** (모델 벤치 7종) | F-C10: **ExtraTrees 38.00** > LGBM 40.35(=cv_m0b) > SegLGBM 40.84 > XGB 41.43 > CatB 41.66 ≫ HistGB 50.97 > Ridge 67.14. 코어10이 3모델 전부에서 트랙 우위(G2 견고). **Cell 15 게이트 ✅ — ExtraTrees valid 37.12 / test 36.89로 LGBM(38.40/38.91) 세 지표 모두 제압 → 실재 도전자. M5b 튜닝, lot-mate 최종판정 M7** |
+| **M5b** (Optuna 튜닝) | **챔피언 = ExtraTrees(튜닝): CV 36.93 / valid 35.66 / test 35.64 — v8 최고 갱신.** LGBM 튜닝 정체(40.35→40.57, pkl 파라미터가 이미 최적). ET가 튜닝 LGBM을 CV −3.65 압도. 코어10이 트랙(F-P3 38.49 / F-T15 40.99) 여전히 우위. **단 고용량 배깅 lot-mate 성분 → M7 Lot-CV 최종판정** |
 | P1 스모크 | ✅ v1.5 3종(quiet/quiet-major/loud) 통과 — loud앵커로 가짜 스파이크 차단 |
-| 비교 | v5 CV 60.5 / valid 61.4 → **v8 M0b CV 40.35 / valid 38.40** (약 −20pt) |
+| 비교 | v5 CV 60.5 / valid 61.4 → **v8 M0b(LGBM) 40.35 / 38.40** → **M5b 챔피언 ExtraTrees 36.93 / valid 35.66 / test 35.64**(잠정, M7 대기) |
 
 ## 누적 실험 로그 (마일스톤마다 1행)
 
@@ -57,7 +59,8 @@ modeling_v8/
 | **M2** | +센서풀 gain 재선별 (최고 TOP_15) | 41.67 | 43.25 | **43.94** | ❌ 기각 (ΔCV +3.59) | `_03_M2` |
 | **M3** | row-level 결합 (v5 프레임 + 그룹 A/B broadcast) | 49.27 | 48.88 | **50.87** | ❌ 기각 (ΔCV +10.52) | `_04_M3` |
 | **M4** | 블록 ablation · 시간 dedup · TOP_N 스윕 | 38.40 | 38.91 | **40.35** | 🟢 **G2** (코어10 확정) | `_05_M4` |
-| **M5a** | 모델 벤치 7종×3트랙 (코어10 동결) | — | — | **38.00** (ExtraTrees) | ⚠️ 잠정 (검증대기) | `_06_M5a` |
+| **M5a** | 모델 벤치 7종×3트랙 (코어10 동결) | **37.12** | **36.89** | **38.00** (ExtraTrees) | ✅ 게이트 통과 (M7 대기) | `_06_M5a` |
+| **M5b** | Optuna 튜닝 (ExtraTrees·LGBM, F-C10) | **35.66** | **35.64** | **36.93** (ExtraTrees) | ✅ 챔피언 확정 (M7 대기) | `_07_M5b` |
 
 ## 버전 비교표 (CV/valid, 낮을수록 좋음)
 
@@ -68,6 +71,8 @@ modeling_v8/
 | test | — | — | 60.51 | — | 60.52 | — | **38.91** |
 
 > v8 = **약 −20pt 도약**. v8 CV는 wafer 5-fold `KFold(shuffle,42)` — 프리어 버전과 스킴 차이로 ±1pt 있을 수 있으나 v8 **내부** 마일스톤은 동일 스킴 고정. M0a(pkl 재현) 앵커는 valid 37.97.
+>
+> **M5b 챔피언(ExtraTrees 튜닝)**: CV 36.93 / valid 35.66 / test 35.64 — LGBM 계열(M0b 40.35 / 38.40)을 랜덤 CV·held-out 모두에서 앞섬. **단 잠정** — 고용량 배깅의 lot-mate 성분(Lot 스팬 0.357h)이 M7 `GroupKFold(C20)` Lot-CV로 검증되기 전까지 제출 트랙 미확정.
 
 ---
 
@@ -120,6 +125,10 @@ modeling_v8/
 | **13** | **M5a** 하니스 — 3트랙(F-C10·F-T15·F-P3) 정의 + `run_candidate`(동일 fold OOF) + 후보 7종 등록(LGBM/XGB/CatB/HistGB/ExtraTrees/Ridge+spline/SegLGBM) |
 | **14** | **M5a** 실행 — F-C10 7종 → 상위3×트랙 → 벤치표 + OOF 오차상관(13×13) + 상위2 선정 + 트랙 valid/test 최초기록 → `outputs/` 저장 |
 | **15** | **M5a 확인** — ExtraTrees valid/test 조회(M5b 진입 게이트): 랜덤 CV 우위가 일반화인지 lot-mate 암기인지 판정 |
+| **15.5** | (선행) **M5b 환경** — optuna 설치 확인 |
+| **16** | **M5b 튜닝** — ExtraTrees·LGBM Optuna 30 trials(F-C10만, wafer-CV 최소화, seed 42) |
+| **17** | **M5b 확정** — 튜닝 valid/test + 챔피언 선정(CV 최소) + 트랙 전이 평가 1회 → `outputs/results_M5b.json` |
+| **18** | (탐색 전용, 선택) **트랙 튜닝** — F-T15·F-P3 Optuna(§8.5 예외, 선정·제출 미개입, 별도 파일). *이번 미실행* |
 
 ## 실행 방법
 
@@ -134,6 +143,7 @@ modeling_v8/
 ## 현재 상태 & 다음
 
 - ✅ **M0a~M4 완료** — 피처 정합(G1a) + 재학습 확정(**G1**) + 센서 기여 +3.91pt + **M1·M2·M3 전부 기각** + **M4 🟢 G2 통과**. → **코어 10 WF-level 피처셋 동결**(CV 40.35 / valid 38.40 / test 38.91).
-- ✅ **M5a 완료(모델 벤치)** — 후보 7종 × 3트랙. 부스팅 3종 근접(LGBM 40.35 최선)·선형/세그먼트 부적합. **코어 10이 3모델 전부에서 F-P3·F-T15 우위 → G2 견고**. 하니스 정합 확증(LGBM=cv_m0b, F-T15 valid/test=동결표). **⚠️ ExtraTrees 38.00으로 랜덤 CV −2.35pt 선두이나 lot-mate 누수 의심 → 검증 대기.**
-- ⬜ **다음 (즉시)**: **Cell 15 확인** — ExtraTrees valid/test 조회로 일반화/암기 판정. → **M5b**(확정된 상위 2개 Optuna 경량, F-C10만 튜닝·트랙 전이 1회) → (M6 앙상블 — ExtraTrees가 부스팅과 최탈상관 0.76~0.79/Ridge 0.46) → **M7**(Lot-CV `GroupKFold(C20)`·time-split 정직성 — ExtraTrees 우위의 최종 판정) → **M8**(시간 재분할 시뮬).
-- 상세 스냅샷: M0 → `REPORT/modeling_v8_REPORT_01_M0.md`, M1 → `…_02_M1.md`, M2 → `…_03_M2.md`, M3 → `…_04_M3.md`, M4 → `…_05_M4.md`, **M5a → `…_06_M5a.md`**.
+- ✅ **M5a 완료(모델 벤치 + Cell 15 확인)** — 후보 7종 × 3트랙. 부스팅 3종 근접(LGBM 40.35 최선)·선형/세그먼트 부적합. **코어 10이 3모델 전부에서 F-P3·F-T15 우위 → G2 견고**. **ExtraTrees가 Cell 15 게이트 통과** — CV 38.00·valid 37.12·test 36.89로 LGBM 3지표 제압.
+- ✅ **M5b 완료(Optuna 튜닝)** — **챔피언 = ExtraTrees(튜닝): CV 36.93 / valid 35.66 / test 35.64, v8 최고 갱신(잠정)**. LGBM 튜닝 정체(40.57, 복원 pkl 파라미터가 이미 최적 — 30 trials 못 넘음). ET가 튜닝 LGBM을 CV −3.65 압도. 트랙 전이서 코어10 여전히 최선(F-P3 38.49 / F-T15 40.99). **단 min_samples_leaf만 1→2, max_features 1.0·depth 32로 고용량 배깅 — lot-mate 성분 미해소, 격차 −3.65로 M5a보다 확대.**
+- ⬜ **다음**: (M6 옵션 앙상블 — ExtraTrees가 부스팅과 최탈상관 0.76~0.79/Ridge 0.46) → **M7**(Lot-CV `GroupKFold(C20)`·time-split 정직성, **3트랙 분리 보고, G3** — ExtraTrees 우위의 lot-mate 최종 판정) → **M8**(시간 재분할 시뮬 + H-T1). **제출 트랙 확정은 M7 이후.**
+- 상세 스냅샷: M0 → `REPORT/modeling_v8_REPORT_01_M0.md`, M1 → `…_02_M1.md`, M2 → `…_03_M2.md`, M3 → `…_04_M3.md`, M4 → `…_05_M4.md`, M5a → `…_06_M5a.md`, **M5b → `…_07_M5b.md`**.

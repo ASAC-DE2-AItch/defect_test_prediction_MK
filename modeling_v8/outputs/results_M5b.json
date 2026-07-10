@@ -1,0 +1,52 @@
+{
+  "champion": "ExtraTrees",
+  "best_cv": 36.92872656515623,
+  "lgbm": {
+    "params": {
+      "learning_rate": 0.053085958319815364,
+      "num_leaves": 192,
+      "min_child_samples": 5,
+      "feature_fraction": 0.6941353372836316,
+      "bagging_fraction": 0.9726923727970656,
+      "bagging_freq": 10,
+      "lambda_l1": 0.008985046002653421,
+      "lambda_l2": 0.001153563558256608,
+      "min_split_gain": 0.3848265007248448
+    },
+    "cv": 40.574837863434375,
+    "valid": 38.634457302053,
+    "test": 39.32549371449072,
+    "rounds": 251
+  },
+  "extratrees": {
+    "params": {
+      "n_estimators": 600,
+      "max_features": 1.0,
+      "min_samples_leaf": 2,
+      "max_depth": 32
+    },
+    "cv": 36.92872656515623,
+    "valid": 35.65773517965228,
+    "test": 35.63715236067611
+  },
+  "track_transfer": [
+    {
+      "feature_set": "F-C10",
+      "cv": 36.92872656515623,
+      "valid": 35.65773517965228,
+      "test": 35.63715236067611
+    },
+    {
+      "feature_set": "F-T15",
+      "cv": 40.98614507521736,
+      "valid": 38.750588280609435,
+      "test": 39.62922346230957
+    },
+    {
+      "feature_set": "F-P3",
+      "cv": 38.491205128431375,
+      "valid": 36.96356796611011,
+      "test": 37.12077280609832
+    }
+  ]
+}
