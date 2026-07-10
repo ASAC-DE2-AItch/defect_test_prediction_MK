@@ -1,13 +1,14 @@
 # modeling_v8 — 안내서 & 실험 인덱스 (살아있는 문서)
 
 > 이 문서는 modeling_v8의 **살아있는 인덱스**입니다 — 노트북 사용법 + **누적 실험 로그** + 각 마일스톤 **스냅샷 보고서로의 링크**. 코드·결과가 바뀌면 **이 문서만** 갱신하고, 마일스톤별 상세 분석은 고정 스냅샷 REPORT 파일에 있습니다.
-> PLAN **v1.5**(verdict) 반영. 현재 노트북 범위: Phase 3(피처) + M0a·M0b·M-T·M1·M2·M3.
+> PLAN **v1.6**(verdict + 관찰 트랙) 반영. 현재 노트북 범위: Phase 3(피처) + M0a·M0b·M-T·M1·M2·M3·M4 + **M5a(모델 벤치)**.
 
 ## 📁 파일 구성 & 명명 규칙
 
 ```
 modeling_v8/
-├─ modeling_v8.ipynb              노트북 (피처 빌드 + M0a·M0b·M-T·M1·M2·M3·M4, Cell 1~12)
+├─ modeling_v8.ipynb              노트북 (피처 빌드 + M0a~M4 Cell 1~12 + M5a 벤치 Cell 13~15)
+├─ outputs/                       M5a 산출물: model_bench.csv · model_bench_corr.csv · results_M5a.json
 ├─ modeling_v8_README.md          ← 이 파일: 살아있는 인덱스(사용법+누적 로그+인덱스)
 ├─ modeling_v8_PLAN.md            기획서 (PLAN v1.5)
 ├─ pkl_recovered_meta.json        원본 pkl 복원 메타(PARAMS·top-10·gain)
@@ -16,7 +17,8 @@ modeling_v8/
    ├─ modeling_v8_REPORT_02_M1.md    M1 (+C23_te, 기각)
    ├─ modeling_v8_REPORT_03_M2.md    M2 (센서 풀 gain 재선별, 기각)
    ├─ modeling_v8_REPORT_04_M3.md    M3 (row-level 결합, 기각)
-   └─ modeling_v8_REPORT_05_M4.md    M4 (피처셋 확정, 🟢 G2)
+   ├─ modeling_v8_REPORT_05_M4.md    M4 (피처셋 확정, 🟢 G2)
+   └─ modeling_v8_REPORT_06_M5a.md   M5a (모델 벤치 7종×3트랙, ExtraTrees 잠정선두·검증대기)
 ```
 
 **명명 규칙** — `REPORT/modeling_v8_REPORT_<NN>_<마일스톤>.md`
@@ -40,6 +42,7 @@ modeling_v8/
 | **M2** (센서 풀 재선별) | 최고 CV 43.94 — **❌ 기각**(ΔCV +3.59, 코어 10 못 넘음, C25 미부상 23위) |
 | **M3** (row-level 결합) | CV **50.87** / valid 49.27 / test 48.88 — **❌ 기각**(ΔCV +10.52, WF-level 대비 큰 열세) |
 | **M4** (피처셋 확정) | 레짐제거 +218.9·센서제거 +3.91(둘 다 필수) / 시간 dedup +8.0(7종 유지) / gain-greedy 최선 43.94(코어10 우위) — **🟢 G2 통과** |
+| **M5a** (모델 벤치 7종) | F-C10: **ExtraTrees 38.00** > LGBM 40.35(=cv_m0b) > SegLGBM 40.84 > XGB 41.43 > CatB 41.66 ≫ HistGB 50.97 > Ridge 67.14. 코어10이 3모델 전부에서 트랙 우위(G2 견고). **ExtraTrees 잠정선두 −2.35pt — lot-mate 누수 의심, valid/test 확인(Cell 15)·M7 대기** |
 | P1 스모크 | ✅ v1.5 3종(quiet/quiet-major/loud) 통과 — loud앵커로 가짜 스파이크 차단 |
 | 비교 | v5 CV 60.5 / valid 61.4 → **v8 M0b CV 40.35 / valid 38.40** (약 −20pt) |
 
@@ -54,6 +57,7 @@ modeling_v8/
 | **M2** | +센서풀 gain 재선별 (최고 TOP_15) | 41.67 | 43.25 | **43.94** | ❌ 기각 (ΔCV +3.59) | `_03_M2` |
 | **M3** | row-level 결합 (v5 프레임 + 그룹 A/B broadcast) | 49.27 | 48.88 | **50.87** | ❌ 기각 (ΔCV +10.52) | `_04_M3` |
 | **M4** | 블록 ablation · 시간 dedup · TOP_N 스윕 | 38.40 | 38.91 | **40.35** | 🟢 **G2** (코어10 확정) | `_05_M4` |
+| **M5a** | 모델 벤치 7종×3트랙 (코어10 동결) | — | — | **38.00** (ExtraTrees) | ⚠️ 잠정 (검증대기) | `_06_M5a` |
 
 ## 버전 비교표 (CV/valid, 낮을수록 좋음)
 
@@ -112,6 +116,10 @@ modeling_v8/
 | **10** | **M2** — 센서 풀(563) gain 재선별: pass1 gain 랭킹 → TOP_N 스윕 + 코어10+K probe → ΔCV 게이트 |
 | **11** | **M3** — row-level 결합: v5 빌더(행 센서+context+row_pos+C6/C7) + 그룹 A broadcast + hour_row(157피처) → M0b 동일 분할 OOF → 행→WF 평균 → ΔCV 게이트 |
 | **12** | **M4** — 피처셋 확정: 블록 ablation(GA/GB) + 시간 dedup(최소셋 vs 7종) + TOP_N 스윕(M2 gain 랭킹) → **G2** 판정 |
+| **12.5** | (선행) **M5 환경** — xgboost·catboost 설치 확인(미설치 시 벤치 자동 제외) |
+| **13** | **M5a** 하니스 — 3트랙(F-C10·F-T15·F-P3) 정의 + `run_candidate`(동일 fold OOF) + 후보 7종 등록(LGBM/XGB/CatB/HistGB/ExtraTrees/Ridge+spline/SegLGBM) |
+| **14** | **M5a** 실행 — F-C10 7종 → 상위3×트랙 → 벤치표 + OOF 오차상관(13×13) + 상위2 선정 + 트랙 valid/test 최초기록 → `outputs/` 저장 |
+| **15** | **M5a 확인** — ExtraTrees valid/test 조회(M5b 진입 게이트): 랜덤 CV 우위가 일반화인지 lot-mate 암기인지 판정 |
 
 ## 실행 방법
 
@@ -125,6 +133,7 @@ modeling_v8/
 
 ## 현재 상태 & 다음
 
-- ✅ **M0a~M4 완료** — 피처 정합(G1a) + 재학습 확정(**G1**) + 센서 기여 +3.91pt + **M1·M2·M3 전부 기각** + **M4 🟢 G2 통과**. 첨가(M1)·재선별(M2)·프레임 교체(M3)·감축/자동선택(M4)을 **사방으로 확인** → **코어 10 WF-level 피처셋 동결**(CV 40.35 / valid 38.40 / test 38.91).
-- ⬜ **다음**: **M5a**(모델 후보 벤치: LGBM/XGBoost/CatBoost/HistGB/ExtraTrees·RF/정칙화 선형/레짐 세그먼트) → **M5b**(상위 2개 Optuna 경량) → (M6 앙상블 옵션) → **M7**(Lot-CV/time-split 정직성) → **M8**(시간 재분할 시뮬).
-- 상세 스냅샷: M0 → `REPORT/modeling_v8_REPORT_01_M0.md`, M1 → `…_02_M1.md`, M2 → `…_03_M2.md`, M3 → `…_04_M3.md`, **M4 → `…_05_M4.md`**.
+- ✅ **M0a~M4 완료** — 피처 정합(G1a) + 재학습 확정(**G1**) + 센서 기여 +3.91pt + **M1·M2·M3 전부 기각** + **M4 🟢 G2 통과**. → **코어 10 WF-level 피처셋 동결**(CV 40.35 / valid 38.40 / test 38.91).
+- ✅ **M5a 완료(모델 벤치)** — 후보 7종 × 3트랙. 부스팅 3종 근접(LGBM 40.35 최선)·선형/세그먼트 부적합. **코어 10이 3모델 전부에서 F-P3·F-T15 우위 → G2 견고**. 하니스 정합 확증(LGBM=cv_m0b, F-T15 valid/test=동결표). **⚠️ ExtraTrees 38.00으로 랜덤 CV −2.35pt 선두이나 lot-mate 누수 의심 → 검증 대기.**
+- ⬜ **다음 (즉시)**: **Cell 15 확인** — ExtraTrees valid/test 조회로 일반화/암기 판정. → **M5b**(확정된 상위 2개 Optuna 경량, F-C10만 튜닝·트랙 전이 1회) → (M6 앙상블 — ExtraTrees가 부스팅과 최탈상관 0.76~0.79/Ridge 0.46) → **M7**(Lot-CV `GroupKFold(C20)`·time-split 정직성 — ExtraTrees 우위의 최종 판정) → **M8**(시간 재분할 시뮬).
+- 상세 스냅샷: M0 → `REPORT/modeling_v8_REPORT_01_M0.md`, M1 → `…_02_M1.md`, M2 → `…_03_M2.md`, M3 → `…_04_M3.md`, M4 → `…_05_M4.md`, **M5a → `…_06_M5a.md`**.

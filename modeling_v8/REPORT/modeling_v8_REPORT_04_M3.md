@@ -28,6 +28,17 @@ PLAN의 사전 실험 **E10**은 이미 답을 낮춰뒀다 — v5 잔차와 레
 
 ## 2. 결과
 
+```
+[M3] row-level 피처 157개 | train rows 123,614
+   fold1 best_iter=970
+   fold2 best_iter=347
+   fold3 best_iter=758
+   fold4 best_iter=807
+   fold5 best_iter=570
+[M3] row-level 결합  CV(wafer,OOF)=50.868  valid=49.273  test=48.875
+[판정 게이트] ΔCV = 50.868(M3) − 40.347(M0b) = +10.521  → ❌ 기각 — WF-level(M0b) 확정, row-level 이득 없음(E10 예측대로)
+```
+
 | 지표 | **M3** (row-level) | M0b (WF-level, 코어10) | Δ (M3−M0b) |
 |------|:---:|:---:|:---:|
 | **CV(wafer, OOF)** | **50.868** | 40.347 | **+10.521** |
