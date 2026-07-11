@@ -1,0 +1,77 @@
+{
+  "F-C10": {
+    "lgbm": {
+      "cv": 40.574837863434375,
+      "params": {
+        "learning_rate": 0.053085958319815364,
+        "num_leaves": 192,
+        "min_child_samples": 5,
+        "feature_fraction": 0.6941353372836316,
+        "bagging_fraction": 0.9726923727970656,
+        "bagging_freq": 10,
+        "lambda_l1": 0.008985046002653421,
+        "lambda_l2": 0.001153563558256608,
+        "min_split_gain": 0.3848265007248448
+      }
+    },
+    "et": {
+      "cv": 36.92872656515623,
+      "params": {
+        "n_estimators": 600,
+        "max_features": 1.0,
+        "min_samples_leaf": 2,
+        "max_depth": 32
+      }
+    }
+  },
+  "F-T15": {
+    "lgbm": {
+      "cv": 44.087434656929496,
+      "params": {
+        "learning_rate": 0.05304994688187505,
+        "num_leaves": 194,
+        "min_child_samples": 5,
+        "feature_fraction": 0.6941353372836316,
+        "bagging_fraction": 0.821150274145019,
+        "bagging_freq": 6,
+        "lambda_l1": 2.818419670387763,
+        "lambda_l2": 0.04379408265736513,
+        "min_split_gain": 0.7113384942488737
+      }
+    },
+    "et": {
+      "cv": 40.89090808905837,
+      "params": {
+        "n_estimators": 600,
+        "max_features": 1.0,
+        "min_samples_leaf": 1,
+        "max_depth": null
+      }
+    }
+  },
+  "F-P3": {
+    "lgbm": {
+      "cv": 41.245833639506465,
+      "params": {
+        "learning_rate": 0.05304994688187505,
+        "num_leaves": 194,
+        "min_child_samples": 5,
+        "feature_fraction": 0.6941353372836316,
+        "bagging_fraction": 0.821150274145019,
+        "bagging_freq": 6,
+        "lambda_l1": 2.818419670387763,
+        "lambda_l2": 0.04379408265736513,
+        "min_split_gain": 0.7113384942488737
+      }
+    },
+    "et": {
+      "cv": 38.48214696350455,
+      "params": {
+        "n_estimators": 800,
+        "max_features": 1.0,
+        "min_samples_leaf": 2,
+        "max_depth": null
+      }
+    }
+  }
+}
