@@ -1,0 +1,17 @@
+{
+  "candidates": {
+    "Conservative-GA": {
+      "n_total": 99,
+      "KFold_OOF": 50.677,
+      "GroupKFold_C20": 71.366,
+      "floor_ok": true
+    },
+    "Balanced-GA": {
+      "n_total": 108,
+      "KFold_OOF": 51.412,
+      "GroupKFold_C20": 71.272,
+      "floor_ok": true
+    }
+  },
+  "winner_by_groupkfold": "Balanced-GA"
+}

@@ -1,0 +1,41 @@
+{
+  "champion": "Conservative-GA",
+  "n_feats": 99,
+  "gkf_oof_rmse": 71.366,
+  "c65_lot_icc": 0.987,
+  "c65_sd_between": 260.1,
+  "c65_sd_within": 30.0,
+  "resid_lot_icc": 0.784,
+  "verdict": "여지 큼 — F1'(레짐×센서)·F4'(풀 확장) 적극",
+  "top_resid_corr": {
+    "C52_std_step6": 0.0366,
+    "C25_std_step6": 0.0333,
+    "C58_max_step5": -0.0257,
+    "C58_min_step5": -0.0257,
+    "C58_last_step5": -0.0257,
+    "C58_mean_step5": -0.0257,
+    "C58_std_step6": 0.0249,
+    "C52_std_step7": 0.022,
+    "C57_mean_step5": 0.0192,
+    "C57_min_step5": 0.0192,
+    "C57_last_step5": 0.0192,
+    "C57_max_step5": 0.0192,
+    "C11_min_step5": -0.0192,
+    "C11_max_step5": -0.0192,
+    "C11_last_step5": -0.0192
+  },
+  "sensor_max_corr": {
+    "C52": 0.0366,
+    "C25": 0.0333,
+    "C58": 0.0257,
+    "C57": 0.0192,
+    "C11": 0.0192,
+    "C48": 0.0183,
+    "C16": 0.0177,
+    "C60": 0.0157,
+    "C18": 0.0142,
+    "C61": 0.0142,
+    "C56": 0.014,
+    "C62": 0.0117
+  }
+}

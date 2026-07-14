@@ -1,0 +1,64 @@
+{
+  "set": "Conservative-GA(99)",
+  "results": [
+    {
+      "partition": "stable",
+      "LGBM": 71.366,
+      "XGBoost": 70.773,
+      "delta_LGBM_minus_XGB": 0.593,
+      "R2_LGBM": 0.9256,
+      "R2_XGB": 0.9269,
+      "sec": 133.0
+    },
+    {
+      "partition": "seed1",
+      "LGBM": 73.232,
+      "XGBoost": 72.313,
+      "delta_LGBM_minus_XGB": 0.919,
+      "R2_LGBM": 0.9217,
+      "R2_XGB": 0.9236,
+      "sec": 133.0
+    },
+    {
+      "partition": "seed2",
+      "LGBM": 69.87,
+      "XGBoost": 69.444,
+      "delta_LGBM_minus_XGB": 0.426,
+      "R2_LGBM": 0.9287,
+      "R2_XGB": 0.9296,
+      "sec": 133.0
+    },
+    {
+      "partition": "seed3",
+      "LGBM": 70.905,
+      "XGBoost": 70.479,
+      "delta_LGBM_minus_XGB": 0.426,
+      "R2_LGBM": 0.9266,
+      "R2_XGB": 0.9275,
+      "sec": 134.0
+    }
+  ],
+  "seed_delta": {
+    "values": [
+      0.919,
+      0.426,
+      0.426
+    ],
+    "mean": 0.59,
+    "worst": 0.426,
+    "best": 0.919
+  },
+  "criterion": {
+    "robust_direction": true,
+    "mean_ge_0p5": true,
+    "verdict": "편입 권고(강)"
+  },
+  "ref": {
+    "stable_LGBM": 71.366,
+    "stable_XGB": 70.773,
+    "B0": 71.212,
+    "anchor_v23": 70.712
+  },
+  "cv": "lot-CV: KFold(5,shuffle,seed) on unique C20 + stable_group_kfold(대조)",
+  "note": "XGB 절대값은 로컬 xgboost 버전 의존. 상대 Δ(LGBM−XGB)는 동일환경이라 견고. KFold 우위 불인정(R1)."
+}

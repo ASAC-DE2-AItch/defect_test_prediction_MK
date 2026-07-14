@@ -1,0 +1,3 @@
+preset,start,①after_var,②after_miss,③after_corr,④after_vif,sensors,floor,sec
+Conservative,655,435,435,226,141,25,OK,30.7
+Balanced,655,435,344,189,126,26,OK,15.34

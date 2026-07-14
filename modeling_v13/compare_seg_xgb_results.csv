@@ -1,0 +1,5 @@
+candidate,model,n_total,KFold_OOF,GroupKFold_C20,floor_ok,miss_all,sec
+Conservative-GA,SegLGBM,99,50.707,71.289,True,0.1306,2457.0
+Conservative-GA,XGBoost,99,52.259,70.773,True,0.1306,137.0
+Balanced-GA,SegLGBM,108,51.193,71.527,True,0.0248,1509.0
+Balanced-GA,XGBoost,108,52.568,70.651,True,0.0248,138.0

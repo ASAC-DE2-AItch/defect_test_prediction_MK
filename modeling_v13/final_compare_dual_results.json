@@ -1,0 +1,65 @@
+{
+  "results": [
+    {
+      "candidate": "Conservative-GA",
+      "model": "LGBM",
+      "n_total": 99,
+      "KFold_OOF": 50.677,
+      "GroupKFold_C20": 71.366,
+      "floor_ok": true,
+      "miss_all": 0.1306,
+      "sec": 1096.0
+    },
+    {
+      "candidate": "Conservative-GA",
+      "model": "ET",
+      "n_total": 99,
+      "KFold_OOF": 48.481,
+      "GroupKFold_C20": 72.415,
+      "floor_ok": true,
+      "miss_all": 0.1306,
+      "sec": 397.0
+    },
+    {
+      "candidate": "Balanced-GA",
+      "model": "LGBM",
+      "n_total": 108,
+      "KFold_OOF": 51.412,
+      "GroupKFold_C20": 71.272,
+      "floor_ok": true,
+      "miss_all": 0.0248,
+      "sec": 1449.0
+    },
+    {
+      "candidate": "Balanced-GA",
+      "model": "ET",
+      "n_total": 108,
+      "KFold_OOF": 48.857,
+      "GroupKFold_C20": 72.245,
+      "floor_ok": true,
+      "miss_all": 0.0248,
+      "sec": 472.0
+    }
+  ],
+  "decision": {
+    "confirmed_set": "Conservative-GA",
+    "rule": "평균차 0.132<0.3 → 슬림(Conservative), 안정코어 §1.3 우세와 일치",
+    "B1_LGBM": 71.366,
+    "B1_ET": 72.415,
+    "r2_honest": 0.9256,
+    "et_median_suspect": false,
+    "cv": "stable_group_kfold (v2.2 환경독립 폴드맵)"
+  },
+  "expected_local": {
+    "LGBM_GKF": {
+      "Conservative": 71.366,
+      "Balanced": 71.272
+    },
+    "LGBM_KF": {
+      "Conservative": 50.677,
+      "Balanced": 51.412
+    },
+    "B0": 71.212
+  },
+  "note": "B1_ET=순수 median ET(도전자 기록, 기준선 아님). ET 열세는 median 손실 의심→F3′."
+}

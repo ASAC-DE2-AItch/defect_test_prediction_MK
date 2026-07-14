@@ -1,0 +1,83 @@
+{
+  "results": [
+    {
+      "candidate": "Conservative-GA",
+      "model": "SegLGBM",
+      "n_total": 99,
+      "KFold_OOF": 50.707,
+      "GroupKFold_C20": 71.289,
+      "floor_ok": true,
+      "miss_all": 0.1306,
+      "sec": 2457.0
+    },
+    {
+      "candidate": "Conservative-GA",
+      "model": "XGBoost",
+      "n_total": 99,
+      "KFold_OOF": 52.259,
+      "GroupKFold_C20": 70.773,
+      "floor_ok": true,
+      "miss_all": 0.1306,
+      "sec": 137.0
+    },
+    {
+      "candidate": "Balanced-GA",
+      "model": "SegLGBM",
+      "n_total": 108,
+      "KFold_OOF": 51.193,
+      "GroupKFold_C20": 71.527,
+      "floor_ok": true,
+      "miss_all": 0.0248,
+      "sec": 1509.0
+    },
+    {
+      "candidate": "Balanced-GA",
+      "model": "XGBoost",
+      "n_total": 108,
+      "KFold_OOF": 52.568,
+      "GroupKFold_C20": 70.651,
+      "floor_ok": true,
+      "miss_all": 0.0248,
+      "sec": 138.0
+    }
+  ],
+  "summary_vs_lgbm": {
+    "Conservative": {
+      "LGBM_ref": 71.366,
+      "SegLGBM": 71.289,
+      "XGBoost": 70.773,
+      "SegLGBM_delta": -0.077,
+      "XGBoost_delta": -0.593
+    },
+    "Balanced": {
+      "LGBM_ref": 71.272,
+      "SegLGBM": 71.527,
+      "XGBoost": 70.651,
+      "SegLGBM_delta": 0.255,
+      "XGBoost_delta": -0.621
+    }
+  },
+  "ref": {
+    "LGBM_GKF": {
+      "Conservative": 71.366,
+      "Balanced": 71.272
+    },
+    "LGBM_KF": {
+      "Conservative": 50.677,
+      "Balanced": 51.412
+    },
+    "B0": 71.212
+  },
+  "models": {
+    "SegLGBM": "is_high_regime 세그 · M8_PARAMS·705 · 폴백<300행",
+    "XGBoost": {
+      "n_estimators": 705,
+      "learning_rate": 0.029,
+      "max_depth": 8,
+      "subsample": 0.86,
+      "colsample_bytree": 0.63
+    }
+  },
+  "cv": "stable_group_kfold (v2.2)",
+  "note": "도전자 기록. 공식 기준선=B1_LGBM(듀얼). KFold 우위 불인정(R1)."
+}
