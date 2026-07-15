@@ -1,0 +1,64 @@
+{
+  "purpose": "core10 ablation (GKF only)",
+  "cv": "stable_group_kfold v2.2",
+  "results": [
+    {
+      "feature_set": "full99",
+      "model": "LGBM",
+      "n_feats": 99,
+      "GroupKFold_C20": 71.366,
+      "R2": 0.9256,
+      "sec": 244.0
+    },
+    {
+      "feature_set": "full99",
+      "model": "XGBoost",
+      "n_feats": 99,
+      "GroupKFold_C20": 70.517,
+      "R2": 0.9274,
+      "sec": 44.0
+    },
+    {
+      "feature_set": "no_core10_89",
+      "model": "LGBM",
+      "n_feats": 89,
+      "GroupKFold_C20": 79.295,
+      "R2": 0.9082,
+      "sec": 232.0
+    },
+    {
+      "feature_set": "no_core10_89",
+      "model": "XGBoost",
+      "n_feats": 89,
+      "GroupKFold_C20": 78.922,
+      "R2": 0.9091,
+      "sec": 59.0
+    }
+  ],
+  "summary": {
+    "LGBM": {
+      "full99": 71.366,
+      "no_core10_89": 79.295,
+      "delta_no_minus_full": 7.929,
+      "R2_full": 0.9256,
+      "R2_no_core10": 0.9082
+    },
+    "XGBoost": {
+      "full99": 70.517,
+      "no_core10_89": 78.922,
+      "delta_no_minus_full": 8.405,
+      "R2_full": 0.9274,
+      "R2_no_core10": 0.9091
+    }
+  },
+  "ref": {
+    "full_frozen": {
+      "LGBM": 71.366,
+      "XGBoost": 70.773
+    },
+    "core10_only_gkf": 78.181,
+    "B0": 71.212,
+    "anchor": 70.712
+  },
+  "note": "진단 ablation. 확정 파이프라인은 core10 포함 그대로(게이트 불변, R1). XGB 절대값 버전 의존(R6). floor 는 champion 으로 core10 없이도 유지."
+}

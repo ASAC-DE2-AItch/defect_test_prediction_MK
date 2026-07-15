@@ -120,6 +120,9 @@ for k in range(5):
 | 2026-07-14 | **M4.5 — Lot 효과 진단(천장)** | C65 Lot-ICC **0.987**(98.7% Lot간). 챔피언 잔차 Lot-ICC **0.784**(여지 큼) 그러나 잔차–센서 최대상관 **0.037**(접근 난망). RMSE 71.366 정확 재현. → −0.5 불확실·**M5 파라미터 1순위** | ✅ (REPORT_05) |
 | 2026-07-14 | **M4 듀얼+보조 — 4모델 정직축 맞대결 (v2.2 CV)** | `final_compare_dual`(LGBM·ET) + `compare_seg_xgb`(SegLGBM·XGBoost) 로컬 확정. **§4.2 G4 → 셋 Conservative-GA(99)·B1_LGBM 71.366 동결**(R² 0.926). ET 정직축 열세(+1.0, lot-mate 암기 = v8 M7 답) · SegLGBM 무변화 · **XGBoost −0.59/−0.62 정직축 우위(잠정, R7 다중시드 대기)**. v2.2 stable 폴드맵 로컬=미러 Δ0.000(XGB만 버전 드리프트 +0.2). | ✅ (REPORT_06) |
 | 2026-07-14 | **XGB 다중시드 검증 (R7 확정)** | Cons-GA(99) 다중시드 lot-CV(seed 1/2/3)+stable — **XGBoost 가 4파티션 전부 LGBM 우세**. 시드 Δ(LGBM−XGB) 평균 **+0.590**·최악 **+0.426** → §6.2 기준(평균≥0.5 ∧ 최악≥0) 통과 → **XGB M5 챔피언 후보 편입 근거 성립**. LGBM 미러=로컬 Δ0.000·XGB 버전드리프트 +0.01~0.26. 게이트 70.712는 M5 튜닝 대상(원값 70.75 미달). | ✅ (REPORT_07) · §6.2 승인 대기 |
+| 2026-07-15 | **PLAN v2.4 — §6.2 스코프 개정 (사용자 승인)** | M5 챔피언 후보 = **{LGBM, XGBoost}** 확정(ET 제외 → F5′ 앙상블 예비 동결). 결정 이력 8 추가. 산출물명 `tuned_params_v13_{lgbm,xgb}.json`으로 정정. G5·앵커(70.712)·확정 셋 Cons-GA(99)·CV(stable)는 불변. | ✅ (PLAN v2.4) |
+| 2026-07-15 | **M5 튜닝 노트북 제작·미러검증** | `modeling_v13_m5_tuning.ipynb`: 목적=stable GKF OOF RMSE, **LGBM 80 / XGBoost 60 trials** Optuna(early stop+MedianPruner) → Stage B 다중시드 스크리닝(고정 rounds 정직수치) → 트랙별 대표·`tuned_params_v13_{lgbm,xgb}.json`. 미러 QUICK 스모크 10셀 무오류(floor·n=99·누수 assert 통과, xgb 3.2.0). | ✅ 제작 완료 → **사용자 실행 대기** (Colab ~1.5–3h) |
+| 2026-07-15 | **core10 ablation (진단·실행 완료)** | `modeling_v13_ablation_no_core10.ipynb` 로컬 실행. **core10 제거 시 GKF: LGBM 71.366→79.295(+7.93) · XGB 70.517→78.922(+8.41)**. no_core10(89 센서) > core10 단독(78.2) = **레짐/시간 지배·센서 상보 확증**. LGBM full99 71.366 정확재현 / XGB full99 70.517(동결 70.773 −0.256=버전드리프트→P0-3 필요 재확인). floor core10 없이도 유지. **게이트·확정 셋 불변**(R1). | ✅ 완료 (REPORT_08) |
 
 ---
 
@@ -141,6 +144,13 @@ Cons/Bal × RFECV/GA 2차 선별. 공통 로직 `v13_select_common.py` import.
 산출 `select_result_<preset>_<method>.json`. 4개 독립·병렬 실행 가능.
 ⚠️ **fit 수 많음** — 로컬 실측(M2 fit당 ~100s) 기준 RFECV ~1시간+, GA 수시간 위험. 설정 경량화/빠른 CPU 권장.
 
+### `modeling_v13_m5_tuning.ipynb` (M5 · v2.4)
+확정 셋 **Cons-GA(99)** 고정, 목적함수 = **stable GKF(C20) 5-fold OOF RMSE**. **LGBM 80 / XGBoost 60 trials** Optuna(early stopping + MedianPruner) → **Stage B 다중시드 스크리닝**(top-K를 고정 rounds=평균 best_iter로 seed 1/2/3 재적합 = 정직 수치) → 트랙별 대표 선발.
+**전제 파일**: `v13_fdc_pool_wf_oof.csv.gz` · `core10_meta_wf.csv` · `feature_diet_selected.json` · `select_result_Conservative_GA.json` (노트북 폴더 또는 `data/`·`colab_GA/`).
+**산출**: `tuned_params_v13_{lgbm,xgb}.json` · `m5_stageB_summary.json` · `m5_stageB_results.csv` · `m5_study_{lgbm,xgb}.csv`.
+**런타임**: Colab ~1.5–3h / 로컬 ~3–6h (CPU). 빠른 점검은 상수 셀 `QUICK=True`(또는 env `M5_QUICK=1`). XGB Colab GPU는 `XGB_DEVICE="cuda"`(수치는 로컬 CPU 재확인=공식, R6).
+**확인 포인트**: 튜닝 전 baseline LGBM stable GKF ≈ **71.366**(Δ<0.05) self-check → 로더·폴드맵 무결. **챔피언/게이트(G5 ≤70.712)는 강건이 회신 숫자로 판정** — 노트북 검산 블록은 참고용. ⚠️ 노트북은 모델 챔피언을 스스로 확정하지 않음.
+
 ---
 
 ## 8. 스냅샷 인덱스 (REPORT)
@@ -152,6 +162,9 @@ Cons/Bal × RFECV/GA 2차 선별. 공통 로직 `v13_select_common.py` import.
 | 03 | M3 2차선별 | `REPORT/modeling_v13_REPORT_03_M3.md` | RFECV vs GA × 2프리셋. GA 우위·환경차 주의·후보 2개 재평가 |
 | 04 | M4 챔피언확정 | `REPORT/modeling_v13_REPORT_04_M4.md` | 동일환경 재평가·R4 판정(챔피언 Cons-GA 99)·B1 71.366 동결·GA가 B0 미달(환경오프셋 확증)·게이트 앵커 상충 |
 | 05 | M4.5 천장진단 | `REPORT/modeling_v13_REPORT_05_M4.5.md` | C65 98.7% Lot간·잔차 ICC 0.784이나 센서 무상관(0.037)·−0.5 난망·M5 파라미터 1순위·자기완결 로더 전환 |
+| 06 | M4 듀얼+보조 | `REPORT/modeling_v13_REPORT_06_M4_dual.md` | 2셋×4모델(LGBM·ET·SegLGBM·XGB) 정직축. 셋 Cons-GA(99) 확정·B1_LGBM 71.366 동결·ET 열세(lot-mate)·**XGB −0.6 우위**(잠정) |
+| 07 | XGB 다중시드 | `REPORT/modeling_v13_REPORT_07_xgb_multiseed.md` | Cons-GA(99) seed1/2/3 lot-CV. XGB가 4파티션 전부 LGBM 우세(평균 Δ+0.590·최악 +0.426) → §6.2 편입기준 통과(v2.4 근거) |
+| 08 | core10 ablation | `REPORT/modeling_v13_REPORT_08_ablation_core10.md` | core10 제거 시 GKF +7.9~8.4 악화·센서만(89)은 core10 단독(78.2)보다 나쁨=레짐 지배 확증·XGB 버전드리프트 재확인. 진단(게이트 불변) |
 
 ---
 
@@ -225,12 +238,14 @@ Cons/Bal × RFECV/GA 2차 선별. 공통 로직 `v13_select_common.py` import.
 |---|---|
 | python | ⬜ |
 | lightgbm | ⬜ |
+| **xgboost** | ⬜ **(v2.4 필수 — XGB 정직축 절대값 버전 의존, 미러 3.2.0 대비 로컬 드리프트 +0.01~0.26 확인)** |
 | scikit-learn | ⬜ |
 | numpy | ⬜ |
 | pandas | ⬜ |
 | optuna | ⬜ |
 
 캡처 커맨드(venv 활성 후): `python --version` 그리고 `python -m pip freeze`
+> 미러(클라우드 검증) 환경 참고: python 3.10 · lightgbm 4.6.0 · xgboost 3.2.0 · scikit-learn 1.7.2 · optuna 4.9.0. **로컬 venv 값으로 이 표를 동결**(R6) — 특히 xgboost 는 로컬 실행 버전을 반드시 기입.
 
 ### 10.7 환경독립 CV (v2.2 — 사용자 승인 07-14)
 정직축 GKF 는 **동결 `stable_group_kfold`** 를 쓴다(표준 `sklearn GroupKFold` 대체).

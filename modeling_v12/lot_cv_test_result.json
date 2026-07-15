@@ -1,0 +1,47 @@
+{
+  "model": "modeling_v12 (FULL 192피처, combined 5-fold LGBM)",
+  "note": "v12 원본 그대로: 192피처, lr=0.03, num_leaves=127, early_stopping patience=100. best_iters가 원본과 정확히 일치(예: fold0 434, RMSE 51.108).",
+  "n_wafer": 11939,
+  "n_lot": 1217,
+  "n_rows": 123614,
+  "n_features": 191,
+  "cv_C64_wafer": {
+    "rmse": 50.0016,
+    "r2": 0.9635,
+    "fold_rmse": [
+      51.108,
+      49.5543,
+      48.8816,
+      51.1699,
+      49.2484
+    ],
+    "best_iters": [
+      434,
+      410,
+      747,
+      674,
+      447
+    ],
+    "n_wf": 11939
+  },
+  "cv_C20_lot": {
+    "rmse": 72.0557,
+    "r2": 0.9242,
+    "fold_rmse": [
+      66.8466,
+      76.1968,
+      77.0243,
+      71.3431,
+      68.2995
+    ],
+    "best_iters": [
+      171,
+      114,
+      131,
+      143,
+      86
+    ],
+    "n_wf": 11939
+  },
+  "optimism_bias_pt": 22.0541
+}
