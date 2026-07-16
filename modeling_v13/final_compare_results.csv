@@ -1,3 +1,0 @@
-candidate,n_total,KFold_OOF,GroupKFold_C20,floor_ok,sec
-Conservative-GA,99,50.677,71.366,True,233.0
-Balanced-GA,108,51.412,71.272,True,235.0

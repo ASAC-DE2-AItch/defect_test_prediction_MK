@@ -1,0 +1,76 @@
+{
+  "protocol": "expanding walk-forward init=4wk H=7d",
+  "pooled": {
+    "retrain_lean": 99.84,
+    "noretrain": 254.899,
+    "retrain_core": 98.361,
+    "R2": 0.8545
+  },
+  "gates": {
+    "retrain_helps": true,
+    "vs_core": false,
+    "r2": false,
+    "no_catastrophe": true,
+    "all_pass": false
+  },
+  "worst_fold": 146.996,
+  "n_folds": 6,
+  "folds": [
+    {
+      "cut": "2018-12-29",
+      "n": 834,
+      "train_n": 4661,
+      "retrain_lean": 146.996,
+      "noretrain": 146.996,
+      "retrain_core": 141.845
+    },
+    {
+      "cut": "2019-01-05",
+      "n": 1077,
+      "train_n": 5495,
+      "retrain_lean": 113.277,
+      "noretrain": 168.254,
+      "retrain_core": 106.197
+    },
+    {
+      "cut": "2019-01-12",
+      "n": 1211,
+      "train_n": 6572,
+      "retrain_lean": 75.214,
+      "noretrain": 216.019,
+      "retrain_core": 73.019
+    },
+    {
+      "cut": "2019-01-19",
+      "n": 1475,
+      "train_n": 7783,
+      "retrain_lean": 109.482,
+      "noretrain": 282.701,
+      "retrain_core": 113.54
+    },
+    {
+      "cut": "2019-01-26",
+      "n": 1408,
+      "train_n": 9258,
+      "retrain_lean": 68.12,
+      "noretrain": 292.356,
+      "retrain_core": 68.855
+    },
+    {
+      "cut": "2019-02-02",
+      "n": 1273,
+      "train_n": 10666,
+      "retrain_lean": 87.032,
+      "noretrain": 319.11,
+      "retrain_core": 85.657
+    }
+  ],
+  "thresholds": {
+    "retrain_help": 3.0,
+    "vs_core": 0.3,
+    "r2": 0.9,
+    "catastrophe": 1.5
+  },
+  "holdout": "R5 2/2회차 소진",
+  "note": "공식 G6′-B2′ 판정은 강건이 회신 숫자로."
+}

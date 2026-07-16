@@ -1,0 +1,45 @@
+{
+  "sets": {
+    "champ99": 99,
+    "lean": 85,
+    "core10": 10
+  },
+  "lot_cv": {
+    "champ99": {
+      "stable": 66.743,
+      "seed_mean": 66.978,
+      "seed_worst": 67.661,
+      "R2": 0.935,
+      "n": 99
+    },
+    "lean": {
+      "stable": 66.83,
+      "seed_mean": 66.956,
+      "seed_worst": 67.592,
+      "R2": 0.9348,
+      "n": 85
+    },
+    "core10": {
+      "stable": 67.16,
+      "seed_mean": 67.451,
+      "seed_worst": 68.31,
+      "R2": 0.9341,
+      "n": 10
+    }
+  },
+  "time_robustness": {
+    "champ99": {
+      "time_rmse": 612.911,
+      "vs_lotcv_gap": 546.168
+    },
+    "lean": {
+      "time_rmse": 612.583,
+      "vs_lotcv_gap": 545.753
+    },
+    "core10": {
+      "time_rmse": 617.687,
+      "vs_lotcv_gap": 550.527
+    }
+  },
+  "note": "학습기 내부 시간분할(홀드아웃 무소비). 최종 시간판정=M8 B2′ 롤링-재학습 1회. 판정은 강건이 회신 숫자로."
+}

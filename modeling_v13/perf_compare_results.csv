@@ -1,4 +1,0 @@
-feature_set,n_diet,n_total,KFold_OOF,GroupKFold_C20,sec
-Conservative,141,151,51.572,71.212,1063.4
-Balanced,126,136,51.564,71.416,1032.5
-core10,0,10,40.387,78.181,656.1

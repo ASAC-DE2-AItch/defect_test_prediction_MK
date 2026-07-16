@@ -1,0 +1,163 @@
+{
+  "set": "Conservative-GA(99)",
+  "n_feats": 99,
+  "baseline_selfcheck": 71.366,
+  "quick": false,
+  "lgbm_rep": {
+    "trial": 71,
+    "rounds": 705,
+    "stable_GKF": 67.649,
+    "seed_mean": 67.895,
+    "seed_worst": 69.069,
+    "R2": 0.9332
+  },
+  "xgb_rep": {
+    "trial": 52,
+    "rounds": 246,
+    "stable_GKF": 66.743,
+    "seed_mean": 66.978,
+    "seed_worst": 67.661,
+    "R2": 0.935
+  },
+  "check_champion": "XGBoost",
+  "check_rule": "stable GKF |delta|>=0.3 낮은 쪽 = XGBoost",
+  "gate": {
+    "anchor": 70.712,
+    "B1_LGBM": 71.366,
+    "B0": 71.212,
+    "champ_stable": 66.743,
+    "pass_anchor": true
+  },
+  "stageB": [
+    {
+      "track": "LGBM",
+      "rank": 3,
+      "trial": 71,
+      "rounds": 705,
+      "tune_val": 66.802,
+      "stable_GKF": 67.649,
+      "seed_mean": 67.895,
+      "seed_worst": 69.069,
+      "R2": 0.9332,
+      "params": {
+        "learning_rate": 0.00954476998506607,
+        "num_leaves": 50,
+        "min_child_samples": 80,
+        "feature_fraction": 0.6794860812087776,
+        "bagging_fraction": 0.5512831673282335,
+        "bagging_freq": 3,
+        "lambda_l1": 5.342063278276946,
+        "lambda_l2": 0.0023157380403729536,
+        "min_split_gain": 0.4904985386486038
+      }
+    },
+    {
+      "track": "LGBM",
+      "rank": 1,
+      "trial": 70,
+      "rounds": 705,
+      "tune_val": 66.754,
+      "stable_GKF": 67.702,
+      "seed_mean": 67.996,
+      "seed_worst": 69.432,
+      "R2": 0.9331,
+      "params": {
+        "learning_rate": 0.008755233252691117,
+        "num_leaves": 31,
+        "min_child_samples": 18,
+        "feature_fraction": 0.613640358316983,
+        "bagging_fraction": 0.6254782450179394,
+        "bagging_freq": 3,
+        "lambda_l1": 2.5987689833387906,
+        "lambda_l2": 0.006205791437454406,
+        "min_split_gain": 0.44886341895543846
+      }
+    },
+    {
+      "track": "LGBM",
+      "rank": 2,
+      "trial": 49,
+      "rounds": 705,
+      "tune_val": 66.771,
+      "stable_GKF": 68.229,
+      "seed_mean": 68.589,
+      "seed_worst": 69.803,
+      "R2": 0.932,
+      "params": {
+        "learning_rate": 0.018419428933752598,
+        "num_leaves": 88,
+        "min_child_samples": 93,
+        "feature_fraction": 0.7431629423564594,
+        "bagging_fraction": 0.5629869996409884,
+        "bagging_freq": 1,
+        "lambda_l1": 0.0054624723232922405,
+        "lambda_l2": 0.6655234539622211,
+        "min_split_gain": 0.5034181630529109
+      }
+    },
+    {
+      "track": "XGBoost",
+      "rank": 3,
+      "trial": 52,
+      "rounds": 246,
+      "tune_val": 66.383,
+      "stable_GKF": 66.743,
+      "seed_mean": 66.978,
+      "seed_worst": 67.661,
+      "R2": 0.935,
+      "params": {
+        "learning_rate": 0.027015944979119196,
+        "max_depth": 4,
+        "min_child_weight": 6.891957479431703,
+        "subsample": 0.8181242434283986,
+        "colsample_bytree": 0.8782954149928492,
+        "reg_alpha": 0.07630553997211231,
+        "reg_lambda": 0.05392394823978756,
+        "gamma": 2.353287110798049
+      }
+    },
+    {
+      "track": "XGBoost",
+      "rank": 2,
+      "trial": 12,
+      "rounds": 65,
+      "tune_val": 66.347,
+      "stable_GKF": 66.618,
+      "seed_mean": 67.03,
+      "seed_worst": 67.621,
+      "R2": 0.9352,
+      "params": {
+        "learning_rate": 0.0929243537328255,
+        "max_depth": 4,
+        "min_child_weight": 8.621865637561614,
+        "subsample": 0.5017876589323725,
+        "colsample_bytree": 0.695230437697538,
+        "reg_alpha": 0.06645829896219282,
+        "reg_lambda": 9.743623929548416,
+        "gamma": 3.4692658748583245
+      }
+    },
+    {
+      "track": "XGBoost",
+      "rank": 1,
+      "trial": 32,
+      "rounds": 98,
+      "tune_val": 66.346,
+      "stable_GKF": 66.875,
+      "seed_mean": 67.193,
+      "seed_worst": 67.799,
+      "R2": 0.9347,
+      "params": {
+        "learning_rate": 0.08829930289385729,
+        "max_depth": 4,
+        "min_child_weight": 6.508171719009004,
+        "subsample": 0.5022321511586179,
+        "colsample_bytree": 0.7299692722246656,
+        "reg_alpha": 0.04603109583298717,
+        "reg_lambda": 9.499940639570827,
+        "gamma": 3.6991606555636283
+      }
+    }
+  ],
+  "note": "공식 챔피언/G5 판정은 강건이 회신 숫자로. 이 파일은 검산·산출 인덱스."
+}

@@ -1,0 +1,75 @@
+{
+  "champion": "XGBoost",
+  "set": "Conservative-GA(99)",
+  "n_feats": 99,
+  "quick": false,
+  "B1": {
+    "rows": [
+      {
+        "seed": 1,
+        "champ": 67.661,
+        "base": 73.232,
+        "improve": 5.572
+      },
+      {
+        "seed": 2,
+        "champ": 66.547,
+        "base": 69.87,
+        "improve": 3.323
+      },
+      {
+        "seed": 3,
+        "champ": 66.728,
+        "base": 70.905,
+        "improve": 4.177
+      }
+    ],
+    "mean_improve": 4.357,
+    "worst_improve": 3.323,
+    "pass_": true
+  },
+  "B2": {
+    "rows": [
+      {
+        "cut": "60/40",
+        "cut_date": "2019-01-14",
+        "n_test": 4966,
+        "champ99": 104.933,
+        "core10": 106.043,
+        "win": true
+      },
+      {
+        "cut": "70/30",
+        "cut_date": "2019-01-21",
+        "n_test": 3786,
+        "champ99": 97.956,
+        "core10": 92.741,
+        "win": false
+      },
+      {
+        "cut": "80/19",
+        "cut_date": "2019-01-26",
+        "n_test": 2655,
+        "champ99": 76.543,
+        "core10": 76.951,
+        "win": true
+      }
+    ],
+    "pass_": false,
+    "worst_champ99": 104.933,
+    "note": "홀드아웃 조회 1/2회차 소비(R5)"
+  },
+  "B3": {
+    "stable_oof_rmse": 66.743,
+    "R2": 0.935
+  },
+  "B4": {
+    "protected_share_pct": 12.7
+  },
+  "refs": {
+    "B1_LGBM": 71.366,
+    "B0": 71.212,
+    "anchor": 70.712
+  },
+  "note": "공식 G6′ 판정은 강건이 회신 숫자로. 이 파일은 검산·산출 인덱스."
+}

@@ -1,5 +1,0 @@
-feature_set,model,n_feats,GroupKFold_C20,R2,sec
-full99,LGBM,99,71.366,0.9256,244.0
-full99,XGBoost,99,70.517,0.9274,44.0
-no_core10_89,LGBM,89,79.295,0.9082,232.0
-no_core10_89,XGBoost,89,78.922,0.9091,59.0

@@ -7,6 +7,22 @@
 
 ---
 
+## 0. 폴더 구조 (2026-07-16 정리)
+
+| 위치 | 내용 |
+|---|---|
+| 루트 `*.md` (5) | PLAN · README · OVERVIEW · **TROUBLESHOOTING**(포스트모템) · PROMPT_executor |
+| 루트 `*.ipynb` (16) | 실험별 노트북 (M1~M8·B2′) |
+| 루트 `*.py` (2) | `build_fdc_pool.py` · `v13_select_common.py`(import용) |
+| `REPORT/` | 스냅샷 REPORT_01~13 (수정 금지) |
+| `data/` | **정본 풀 + 노트북 전제 JSON**(`feature_diet_selected`·`select_result_*`·`tuned_params_v13_*`·`lean_timestable_set`) — 노트북 `_find()`가 `data/` 탐색하므로 로드 정상 |
+| `results/` | 실행 출력물(`*_results.json`·`m5_study_*`·`m5_stageB_summary` 등) — 재실행 시 재생성 |
+| `colab_GA/` | Colab GA 자산(core10_meta·GA 노트북) |
+
+> 정리 원칙: 전제=`data/`, 출력=`results/`, 스냅샷=`REPORT/`. 캐시·체크포인트·0바이트 빈파일 삭제. **로더 무결성 검증 통과.**
+
+---
+
 ## 1. 산출물
 
 | 파일 | 내용 | 크기 |
@@ -123,6 +139,14 @@ for k in range(5):
 | 2026-07-15 | **PLAN v2.4 — §6.2 스코프 개정 (사용자 승인)** | M5 챔피언 후보 = **{LGBM, XGBoost}** 확정(ET 제외 → F5′ 앙상블 예비 동결). 결정 이력 8 추가. 산출물명 `tuned_params_v13_{lgbm,xgb}.json`으로 정정. G5·앵커(70.712)·확정 셋 Cons-GA(99)·CV(stable)는 불변. | ✅ (PLAN v2.4) |
 | 2026-07-15 | **M5 튜닝 노트북 제작·미러검증** | `modeling_v13_m5_tuning.ipynb`: 목적=stable GKF OOF RMSE, **LGBM 80 / XGBoost 60 trials** Optuna(early stop+MedianPruner) → Stage B 다중시드 스크리닝(고정 rounds 정직수치) → 트랙별 대표·`tuned_params_v13_{lgbm,xgb}.json`. 미러 QUICK 스모크 10셀 무오류(floor·n=99·누수 assert 통과, xgb 3.2.0). | ✅ 제작 완료 → **사용자 실행 대기** (Colab ~1.5–3h) |
 | 2026-07-15 | **core10 ablation (진단·실행 완료)** | `modeling_v13_ablation_no_core10.ipynb` 로컬 실행. **core10 제거 시 GKF: LGBM 71.366→79.295(+7.93) · XGB 70.517→78.922(+8.41)**. no_core10(89 센서) > core10 단독(78.2) = **레짐/시간 지배·센서 상보 확증**. LGBM full99 71.366 정확재현 / XGB full99 70.517(동결 70.773 −0.256=버전드리프트→P0-3 필요 재확인). floor core10 없이도 유지. **게이트·확정 셋 불변**(R1). | ✅ 완료 (REPORT_08) |
+| 2026-07-16 | **REPORT_06 부록 A — 피처셋 물리 명세** | 사용자 승인 하 **동결 예외**(R8): REPORT_06에 확정/후보 셋 물리 명세 부록 추가('데이터 사전 v3' 유추본 매핑). Cons-GA(99)/Bal-GA(108)/B0(151) 센서별 구성·카테고리 롤업(**RF~50%**)·fixed15 백본·물리 판독. 발견: **GA 최다 센서=C25 노후도 드리프트**(M4.5 잔차축과 정합)·상위 기여 물리명 미확정(C25·C59/60·C63)→**B4 멘토 안건**. **원 스냅샷 결론 불변.** | ✅ 완료 |
+| 2026-07-16 | **P0-3 로컬 버전 핀 (동결)** | venv 실측·README §10.6 핀: python 3.12.10 · **lightgbm 4.6.0(미러=로컬→B1 71.366 보존)** · **xgboost 3.3.0**(미러 3.2.0·이전과 상이→XGB 절대값 3.3.0 신규확정) · sklearn 1.9.0 · numpy 2.5.1 · **pandas 3.0.3(major)** · optuna 4.9.0. LGBM 게이트 안전, XGB는 3.3.0 내부일관 판정. **M5 self-check(≈71.366)가 env 무결 게이트키퍼.** | ✅ 완료 |
+| 2026-07-16 | **M5 듀얼 재튜닝 · 챔피언 확정** | 사용자 실행(다른 데스크탑 로컬, `quick=false` 80/60 trials). self-check **71.366 Δ0.000**(env 무결). §6.2 규칙1(\|Δ\|=0.906≥0.3) → **챔피언 XGBoost**(stable **66.743**·seed_mean 66.978·worst 67.661·R² 0.935·246r) > LGBM(67.649). **G5 통과**: 66.743 ≤ 70.712(**−3.97**·최악 −3.05)·B1 대비 **−4.62**. 정체 = M8_PARAMS(num_leaves175) 과적합 해소 = **gap-A(파라미터)**, **Lot 천장 돌파 아님**(M4.5 정합). Stage B가 다중시드 seed_mean 최소 선발 = 이중딥핑 가드 작동. LGBM 준우승 F5′ 동결. **R6 확인**(2026-07-16: M5 실행 기기 = 동일 랩탑 = P0-3 핀 env·CPU·xgboost 3.3.0 → self-check 71.366 Δ0.000이 재확증) → **66.743 캐논 공식.** | ✅ 완료 (REPORT_09) |
+| 2026-07-16 | **REPORT_09 부록 A — 비전공자용 해설(동결 예외)** | 사용자 요청: M5 **무엇/왜/목표** + 결과 쉬운 해석 + **파라미터별 변경 분석**(num_leaves 175→50·XGB depth 4·min_child 5→80·lr↓·샘플링·gamma = 전부 "덜 복잡·덜 암기" 규제 → KFold↔GKF 20.8 암기갭 축소) 추가. §1·§4 쉬운 번역판, **원 수치·판정 불변**(R8 예외). | ✅ 완료 |
+| 2026-07-16 | **M6 배터리 · G6′ [기각]** | 챔피언 XGB 5종. **B1 다중시드 통과**(평균 개선 +4.36·최악 +3.32, 챔피언 66.979 = M5 정확 재현). **B2 시간분할 미통과** — 미래 Lot 외삽서 66.7 → **77~105 파국 열화**, 70/30 컷 core10에 열세(97.96 vs 92.74). → **G6′ 기각**. 진단: M5 −4.6은 '같은 시기 새 Lot' 한정, **미래 Lot엔 시간 드리프트**. 홀드아웃 1/2회차 소비(R5). 다음 = 사용자 결정(M7 F2′ / 운영전제 / 범위축소). | ✅ 완료 (REPORT_10) |
+| 2026-07-16 | **드리프트 진단 (G6′ 원인 규명)** | 홀드아웃 무소비(학습기 ≤01-14 내부). 원인 = **PM(2018-12-24) 레짐 시프트**(C65 638±40→1217±221) + **센서–타깃 관계 시간 비정상**(C17_std_step6 −0.12→+0.19 부호반전 등) vs **core10 안정**(C33 −0.50→−0.80). 레시피 가설 반증(테스트기 100% C6_0). 함의: 비정상성=피처로 제거불가 → **운영 재학습 정공법**(+백본-린 보조). | ✅ 완료 (REPORT_11) |
+| 2026-07-16 | **F2′ 린셋 평가 + PLAN v2.5** | 병행 실행. **PLAN v2.5**(결정이력 9): 운영 재학습 관문 **B2′ 재정의**(M8 1회, 무재학습 B2 실패는 정직 기록 유지). **린셋 85**(Cons-GA 99 − 시간불안정 14=C25 9개): **lot-CV 챔피언 동급**(66.83 vs 66.74) → 드리프트 프록시 무가치·파시모니 이득 → 채택후보. 단 학습기내 시간테스트는 PM경계 straddle로 **무효**(전 셋 ~613=레짐레벨 외삽). 시간판정=M8 B2′. champ99 66.743 정확 재현. | ✅ 완료 (REPORT_12) |
+| 2026-07-16 | **B2′ 최종 판정 · G6′-B2′ [기각] · 정직 종료** | 롤링-재학습 백테스트(홀드아웃 R5 2/2 소진). **재학습 필수·효과**(무재학습 254.9→재학습 99.8, i✅) 그러나 **(ii) 센서 lean-85(99.84)가 core10(98.36) 못 이김** ∧ **(iii) R² 0.854<0.9** → 기각. **터미널: FDC 센서 미래-Lot 운영 가치 없음**(v13 테제 반증). 달성가능 = **core10 + 정기 재학습**(R²~0.85). §0 요건 미충족. | ✅ 완료 (REPORT_13) |
 
 ---
 
@@ -162,15 +186,20 @@ Cons/Bal × RFECV/GA 2차 선별. 공통 로직 `v13_select_common.py` import.
 | 03 | M3 2차선별 | `REPORT/modeling_v13_REPORT_03_M3.md` | RFECV vs GA × 2프리셋. GA 우위·환경차 주의·후보 2개 재평가 |
 | 04 | M4 챔피언확정 | `REPORT/modeling_v13_REPORT_04_M4.md` | 동일환경 재평가·R4 판정(챔피언 Cons-GA 99)·B1 71.366 동결·GA가 B0 미달(환경오프셋 확증)·게이트 앵커 상충 |
 | 05 | M4.5 천장진단 | `REPORT/modeling_v13_REPORT_05_M4.5.md` | C65 98.7% Lot간·잔차 ICC 0.784이나 센서 무상관(0.037)·−0.5 난망·M5 파라미터 1순위·자기완결 로더 전환 |
-| 06 | M4 듀얼+보조 | `REPORT/modeling_v13_REPORT_06_M4_dual.md` | 2셋×4모델(LGBM·ET·SegLGBM·XGB) 정직축. 셋 Cons-GA(99) 확정·B1_LGBM 71.366 동결·ET 열세(lot-mate)·**XGB −0.6 우위**(잠정) |
+| 06 | M4 듀얼+보조 | `REPORT/modeling_v13_REPORT_06_M4_dual.md` | 2셋×4모델(LGBM·ET·SegLGBM·XGB) 정직축. 셋 Cons-GA(99) 확정·B1_LGBM 71.366 동결·ET 열세(lot-mate)·**XGB −0.6 우위**(잠정) · **+부록 A**(2026-07-16, 동결예외): 셋별 물리 명세·사전 v3 매핑·강건 판독 |
 | 07 | XGB 다중시드 | `REPORT/modeling_v13_REPORT_07_xgb_multiseed.md` | Cons-GA(99) seed1/2/3 lot-CV. XGB가 4파티션 전부 LGBM 우세(평균 Δ+0.590·최악 +0.426) → §6.2 편입기준 통과(v2.4 근거) |
 | 08 | core10 ablation | `REPORT/modeling_v13_REPORT_08_ablation_core10.md` | core10 제거 시 GKF +7.9~8.4 악화·센서만(89)은 core10 단독(78.2)보다 나쁨=레짐 지배 확증·XGB 버전드리프트 재확인. 진단(게이트 불변) |
+| 09 | M5 챔피언확정 | `REPORT/modeling_v13_REPORT_09_M5.md` | Cons-GA(99) GKF-목적 튜닝(80/60). **챔피언 XGBoost** stable 66.743·seed_mean 66.978·R² 0.935·**G5 통과(−3.97)**·B1 대비 −4.62. self-check 71.366 Δ0.000. 개선=gap-A(파라미터) 해소지 Lot천장 돌파 아님. 준우승 LGBM F5′ 동결. R6 env확인 대기 |
+| 10 | M6 배터리·G6′기각 | `REPORT/modeling_v13_REPORT_10_M6.md` | B1 다중시드 통과(+4.36·챔피언 66.979=M5 재현) · **B2 시간분할 미통과**(미래 Lot 66.7→77~105 파국·70/30 core10 열세) → **G6′ 기각**. **시간 드리프트** 진단. 홀드아웃 1/2 소비. ⚠️축 불일치(M7=lot-CV vs B2=time) |
+| 11 | 드리프트 진단 | `REPORT/modeling_v13_REPORT_11_drift_diagnosis.md` | G6′ 원인 = PM 레짐시프트(C65 638→1217)+센서–타깃 비정상(부호반전) vs core10 안정. 홀드아웃 무소비. 권고: 운영 재학습 중심+F2′ 백본-린 |
+| 12 | F2′ 린셋 평가 | `REPORT/modeling_v13_REPORT_12_lean_eval.md` | 린셋 85 = 챔피언99 lot-CV 동급(66.83 vs 66.74·드리프트14 무가치) → 채택후보. 시간테스트는 PM경계 straddle로 무효(전셋 ~613). 시간판정=M8 B2′ |
+| 13 | **B2′ 최종·정직종료** | `REPORT/modeling_v13_REPORT_13_B2prime_final.md` | G6′-B2′ **기각**: 재학습 필수(255→100)이나 센서 lean-85가 core10 못 이김(99.84 vs 98.36)·R² 0.85. **터미널: 센서 미래-Lot 운영 무가치**. 권장=core10+재학습. R5 소진 |
 
 ---
 
 ## 9. 다음 단계 (v2.0 로드맵 — 정본 `modeling_v13_PLAN.md` §2)
 
-**[지금 · v2.2] M4 듀얼(LGBM·ET) + SegLGBM·XGBoost 노트북 제작·미러검증 완료 → 로컬 실행 대기.** 미러 프리뷰(로컬 확정 전, 잠정): 셋=Cons-GA(99)·B1_LGBM 71.366 재확인, ET 정직축 열세(lot-mate 암기), **XGBoost 정직축 −0.8 주목**(다중시드 확인 대기). 정본 로드맵 = `modeling_v13_PLAN.md` v2.2 §2. (아래 1~5는 v2.0 골격 — M8/P7에서 현행화)
+**[종료 · 2026-07-16] B2′ 최종 판정 → G6′-B2′ [기각] → 정직 종료.** 롤링-재학습 백테스트(홀드아웃 R5 2/2 소진): **재학습은 필수·효과**(무재학습 pooled 254.9 → 재학습 99.8, 조건 i✅) — 그러나 **(ii) 센서 모델 lean-85(99.84)가 백본 core10(98.36)을 못 이김**(−1.48) ∧ **(iii) R² 0.854 < 0.9** → 기각. **터미널 결론: FDC 센서 피처는 미래-Lot defect 예측에 운영 가치가 없다**(v13 센서 테제 반증; M4.5→ablation→REPORT_11/12 최종 확증). **§0 '현업 사용 가능(R²≥0.9)' 요건 미충족.** 달성 가능 최선 = **core10(백본) + 정기 재학습**(R²≈0.85, 센서 불요). 챔피언 XGB·lean-85는 '같은 시기 새 Lot'(후향/대회축)용만. 규율: 결과 후 규칙 변경 없음(R4). 정본 = REPORT_13 · `modeling_v13_PLAN.md`. **잔여(옵션)**: M8 문서 핸드오프(루트 현행화) · 부록 R 대회축 참고 채점(기록용).
 
 1. **M4 (Phase 1)** — `modeling_v13_final_compare.ipynb` 로컬 Restart & Run All → Cons-GA(99)/Bal-GA(108) **동일환경** KFold+GKF → **§10.3 규칙**으로 프리셋 확정 + **B1 동결** → `REPORT_04_M4`.
 2. **M4.5 진단** — C65 Lot 간/내 분산분해 + OOF 잔차 lot-ICC → 정직축 천장 추정(사다리 기대치 캘리브레이션).
@@ -236,16 +265,17 @@ Cons/Bal × RFECV/GA 2차 선별. 공통 로직 `v13_select_common.py` import.
 
 | 패키지 | 버전 |
 |---|---|
-| python | ⬜ |
-| lightgbm | ⬜ |
-| **xgboost** | ⬜ **(v2.4 필수 — XGB 정직축 절대값 버전 의존, 미러 3.2.0 대비 로컬 드리프트 +0.01~0.26 확인)** |
-| scikit-learn | ⬜ |
-| numpy | ⬜ |
-| pandas | ⬜ |
-| optuna | ⬜ |
+| python | **3.12.10** |
+| lightgbm | **4.6.0** ✅ (미러=로컬 일치 → B1 71.366·B0 71.212 보존) |
+| **xgboost** | **3.3.0** **(v2.4 필수 — 미러 3.2.0·REPORT_08 측정본과 또 상이. XGB 절대값은 3.3.0 기준으로 신규 확정, 과거값과 비교 금지)** |
+| scikit-learn | **1.9.0** |
+| numpy | **2.5.1** |
+| pandas | **3.0.3** ⚠️ (2.x→3.0 major — 로딩 차이 시 M5 self-check로 검출) |
+| optuna | **4.9.0** ✅ |
 
 캡처 커맨드(venv 활성 후): `python --version` 그리고 `python -m pip freeze`
 > 미러(클라우드 검증) 환경 참고: python 3.10 · lightgbm 4.6.0 · xgboost 3.2.0 · scikit-learn 1.7.2 · optuna 4.9.0. **로컬 venv 값으로 이 표를 동결**(R6) — 특히 xgboost 는 로컬 실행 버전을 반드시 기입.
+> **P0-3 동결 (2026-07-16)**: 로컬 실측 핀 완료(위 표). **핵심 = lightgbm 4.6.0 미러=로컬 일치** → B1_LGBM 71.366·B0 71.212 재현성 보존(LGBM 게이트 안전). **xgboost 3.3.0** 은 미러 3.2.0·REPORT_08 측정본과 또 달라 → **M5 XGB 절대값을 3.3.0 기준으로 신규 확정**(과거 70.773/70.517과 비교 금지, 내부일관만). pandas 2→**3.0.3** major·numpy 2.5.1·sklearn 1.9.0·python 3.12 = 전부 신규 → **M5 baseline self-check(≈71.366, Δ<0.05)가 env 무결 게이트키퍼**. self-check 벗어나면 pandas 3.0 로딩 차 1순위 의심 → 조사·재핀 후 M5.
 
 ### 10.7 환경독립 CV (v2.2 — 사용자 승인 07-14)
 정직축 GKF 는 **동결 `stable_group_kfold`** 를 쓴다(표준 `sklearn GroupKFold` 대체).

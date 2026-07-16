@@ -1,5 +1,0 @@
-candidate,model,n_total,KFold_OOF,GroupKFold_C20,floor_ok,miss_all,sec
-Conservative-GA,LGBM,99,50.677,71.366,True,0.1306,1096.0
-Conservative-GA,ET,99,48.481,72.415,True,0.1306,397.0
-Balanced-GA,LGBM,108,51.412,71.272,True,0.0248,1449.0
-Balanced-GA,ET,108,48.857,72.245,True,0.0248,472.0
